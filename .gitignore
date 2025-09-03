@@ -1,4 +1,4 @@
 .env
-./airflow/keys/*
+./airflow/keys/google-credentials.json
 ./airflow/logs/*
 ./airflow/.env

@@ -1,1 +1,0 @@
-[2025-09-03T15:44:46.297+0000] {scheduler_job_runner.py:769} ERROR - Executor reports task instance <TaskInstance: cs_ingestion_manual_or_scheduled.run_ingestion_for_window manual__2025-09-03T15:44:44.402115+00:00 [queued]> finished (failed) although the task says it's queued. (Info: None) Was the task killed externally?
