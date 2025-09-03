@@ -1,4 +1,17 @@
-.env
-./airflow/keys/google-credentials.json
-./airflow/logs/*
-./airflow/.env
+
+cat >> .gitignore <<'EOF'
+# Secrets
+*.env
+.env*
+airflow/keys/
+# Logs & generated data
+airflow/logs/
+*.log
+# Notebooks & local artifacts
+.ipynb_checkpoints/
+examples/ragops_milvus.db
+examples/.ragops_milvus.db.lock
+# OS junk
+.DS_Store
+EOF
+examples/example_RAG.ipynb
