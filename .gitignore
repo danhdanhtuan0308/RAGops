@@ -15,3 +15,5 @@ examples/.ragops_milvus.db.lock
 .DS_Store
 EOF
 examples/example_RAG.ipynb
+airflow/keys/
+examples/example_RAG.ipynb
