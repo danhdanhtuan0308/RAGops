@@ -1,0 +1,86 @@
+[2025-09-03T21:06:32.934+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2025-09-03T21:06:32.948+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: physics_ingestion_monthly.fetch_for_interval manual__2025-09-03T21:06:31.724553+00:00 [queued]>
+[2025-09-03T21:06:32.951+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: physics_ingestion_monthly.fetch_for_interval manual__2025-09-03T21:06:31.724553+00:00 [queued]>
+[2025-09-03T21:06:32.951+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 2
+[2025-09-03T21:06:32.955+0000] {taskinstance.py:2330} INFO - Executing <Task(_PythonDecoratedOperator): fetch_for_interval> on 2025-09-03 21:06:31.724553+00:00
+[2025-09-03T21:06:32.959+0000] {logging_mixin.py:188} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:61 DeprecationWarning: This process (pid=4599) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2025-09-03T21:06:32.958+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'physics_ingestion_monthly', 'fetch_for_interval', 'manual__2025-09-03T21:06:31.724553+00:00', '--job-id', '33', '--raw', '--subdir', 'DAGS_FOLDER/dags_physic.py', '--cfg-path', '/tmp/tmpohb6miii']
+[2025-09-03T21:06:32.960+0000] {standard_task_runner.py:91} INFO - Job 33: Subtask fetch_for_interval
+[2025-09-03T21:06:32.959+0000] {standard_task_runner.py:63} INFO - Started process 4600 to run task
+[2025-09-03T21:06:32.977+0000] {task_command.py:426} INFO - Running <TaskInstance: physics_ingestion_monthly.fetch_for_interval manual__2025-09-03T21:06:31.724553+00:00 [running]> on host cd1378bab084
+[2025-09-03T21:06:33.010+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='physics_ingestion_monthly' AIRFLOW_CTX_TASK_ID='fetch_for_interval' AIRFLOW_CTX_EXECUTION_DATE='2025-09-03T21:06:31.724553+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-09-03T21:06:31.724553+00:00'
+[2025-09-03T21:06:33.010+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2025-09-03T21:06:33.010+0000] {dags_physic.py:47} INFO - Starting physics ingestion task
+[2025-09-03T21:06:33.011+0000] {dags_physic.py:71} INFO - Processing window: 2025-08-01 00:00:00 -> 2025-09-01 00:00:00
+[2025-09-03T21:06:33.011+0000] {dags_physic.py:78} WARNING - Package function import failed (No module named 'ingestion'); trying package module
+[2025-09-03T21:06:33.011+0000] {dags_physic.py:85} WARNING - Package module import failed (No module named 'ingestion'); trying top-level module
+[2025-09-03T21:06:33.263+0000] {dags_physic.py:90} INFO - Imported top-level ingestion_physic module
+[2025-09-03T21:06:33.263+0000] {ingestion_physic.py:53} INFO - Formatting datetime 2025-08-01 00:00:00 to arXiv format.
+[2025-09-03T21:06:33.263+0000] {ingestion_physic.py:53} INFO - Formatting datetime 2025-08-31 23:59:00 to arXiv format.
+[2025-09-03T21:06:34.966+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=0)
+[2025-09-03T21:06:39.469+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=200)
+[2025-09-03T21:06:44.048+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=400)
+[2025-09-03T21:06:48.573+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=600)
+[2025-09-03T21:06:53.255+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=800)
+[2025-09-03T21:06:57.559+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=1000)
+[2025-09-03T21:07:01.985+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=1200)
+[2025-09-03T21:07:06.692+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=1400)
+[2025-09-03T21:07:11.308+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=1600)
+[2025-09-03T21:07:15.769+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=1800)
+[2025-09-03T21:07:20.183+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=2000)
+[2025-09-03T21:07:24.717+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=2200)
+[2025-09-03T21:07:29.212+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=2400)
+[2025-09-03T21:07:33.594+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=2600)
+[2025-09-03T21:07:38.030+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=2800)
+[2025-09-03T21:07:41.512+0000] {ingestion_physic.py:128} INFO - [2025-08] Empty page at start=3000; retry 1 after short backoff.
+[2025-09-03T21:07:44.767+0000] {ingestion_physic.py:128} INFO - [2025-08] Empty page at start=3000; retry 2 after short backoff.
+[2025-09-03T21:07:48.993+0000] {ingestion_physic.py:131} INFO - [2025-08] No more entries at start=3000.
+[2025-09-03T21:07:48.994+0000] {ingestion_physic.py:170} INFO - Result: 3000 entries fetched for window 2025-08-01 00:00:00 to 2025-08-31 23:59:00.
+[2025-09-03T21:07:49.104+0000] {dags_physic.py:127} INFO - Saved CSV with 3000 rows to /opt/***/logs/data/arxiv_physics_20250801_20250901.csv
+[2025-09-03T21:07:49.111+0000] {dags_physic.py:151} ERROR - Failed to write Parquet to GCS: storage_options passed with buffer, or non-supported URL
+[2025-09-03T21:07:49.111+0000] {dags_physic.py:162} ERROR - Task failed with error: storage_options passed with buffer, or non-supported URL
+[2025-09-03T21:07:49.111+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2025-09-03T21:07:49.111+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/decorators/base.py", line 265, in execute
+    return_value = super().execute(context)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 235, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 252, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/dags_physic.py", line 136, in run_ingestion_for_window
+    df.to_parquet(
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/util/_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/core/frame.py", line 3118, in to_parquet
+    return to_parquet(
+           ^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/io/parquet.py", line 482, in to_parquet
+    impl.write(
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/io/parquet.py", line 199, in write
+    path_or_handle, handles, filesystem = _get_path_or_handle(
+                                          ^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/io/parquet.py", line 129, in _get_path_or_handle
+    raise ValueError("storage_options passed with buffer, or non-supported URL")
+ValueError: storage_options passed with buffer, or non-supported URL
+[2025-09-03T21:07:49.117+0000] {taskinstance.py:1206} INFO - Marking task as UP_FOR_RETRY. dag_id=physics_ingestion_monthly, task_id=fetch_for_interval, run_id=manual__2025-09-03T21:06:31.724553+00:00, execution_date=20250903T210631, start_date=20250903T210632, end_date=20250903T210749
+[2025-09-03T21:07:49.121+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 33 for task fetch_for_interval (storage_options passed with buffer, or non-supported URL; 4600)
+[2025-09-03T21:07:49.159+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 1
+[2025-09-03T21:07:49.167+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-09-03T21:07:49.168+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

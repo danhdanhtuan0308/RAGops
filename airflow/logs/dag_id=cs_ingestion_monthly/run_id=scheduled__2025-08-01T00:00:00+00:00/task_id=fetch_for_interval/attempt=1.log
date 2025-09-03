@@ -1,0 +1,172 @@
+[2025-09-03T15:12:23.171+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2025-09-03T15:12:23.184+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [queued]>
+[2025-09-03T15:12:23.189+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [queued]>
+[2025-09-03T15:12:23.189+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 1
+[2025-09-03T15:12:23.193+0000] {taskinstance.py:2330} INFO - Executing <Task(_PythonDecoratedOperator): fetch_for_interval> on 2025-08-01 00:00:00+00:00
+[2025-09-03T15:12:23.198+0000] {logging_mixin.py:188} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:61 DeprecationWarning: This process (pid=443) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2025-09-03T15:12:23.197+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'cs_ingestion_monthly', 'fetch_for_interval', 'scheduled__2025-08-01T00:00:00+00:00', '--job-id', '2', '--raw', '--subdir', 'DAGS_FOLDER/dag_cs.py', '--cfg-path', '/tmp/tmp47jdjvpt']
+[2025-09-03T15:12:23.199+0000] {standard_task_runner.py:63} INFO - Started process 446 to run task
+[2025-09-03T15:12:23.199+0000] {standard_task_runner.py:91} INFO - Job 2: Subtask fetch_for_interval
+[2025-09-03T15:12:23.221+0000] {task_command.py:426} INFO - Running <TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [running]> on host 18f4cd224f83
+[2025-09-03T15:12:23.342+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='cs_ingestion_monthly' AIRFLOW_CTX_TASK_ID='fetch_for_interval' AIRFLOW_CTX_EXECUTION_DATE='2025-08-01T00:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-08-01T00:00:00+00:00'
+[2025-09-03T15:12:23.342+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2025-09-03T15:12:23.343+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2025-09-03T15:12:23.343+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/decorators/base.py", line 265, in execute
+    return_value = super().execute(context)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 235, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 252, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/dag_cs.py", line 46, in fetch_for_interval
+    from ingestion.ingestion_cs import build_cs_query, fetch_window
+ModuleNotFoundError: No module named 'ingestion'
+[2025-09-03T15:12:23.348+0000] {taskinstance.py:1206} INFO - Marking task as FAILED. dag_id=cs_ingestion_monthly, task_id=fetch_for_interval, run_id=scheduled__2025-08-01T00:00:00+00:00, execution_date=20250801T000000, start_date=20250903T151223, end_date=20250903T151223
+[2025-09-03T15:12:23.351+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 2 for task fetch_for_interval (No module named 'ingestion'; 446)
+[2025-09-03T15:12:23.381+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 1
+[2025-09-03T15:12:23.390+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-09-03T15:12:23.391+0000] {local_task_job_runner.py:222} INFO - ::endgroup::
+[2025-09-03T15:45:35.370+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2025-09-03T15:45:35.383+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [queued]>
+[2025-09-03T15:45:35.387+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [queued]>
+[2025-09-03T15:45:35.388+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 2
+[2025-09-03T15:45:35.395+0000] {taskinstance.py:2330} INFO - Executing <Task(_PythonDecoratedOperator): fetch_for_interval> on 2025-08-01 00:00:00+00:00
+[2025-09-03T15:45:35.399+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'cs_ingestion_monthly', 'fetch_for_interval', 'scheduled__2025-08-01T00:00:00+00:00', '--job-id', '8', '--raw', '--subdir', 'DAGS_FOLDER/dag_cs.py', '--cfg-path', '/tmp/tmp30zb2vef']
+[2025-09-03T15:45:35.399+0000] {logging_mixin.py:188} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:61 DeprecationWarning: This process (pid=185) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2025-09-03T15:45:35.400+0000] {standard_task_runner.py:91} INFO - Job 8: Subtask fetch_for_interval
+[2025-09-03T15:45:35.400+0000] {standard_task_runner.py:63} INFO - Started process 187 to run task
+[2025-09-03T15:45:35.421+0000] {task_command.py:426} INFO - Running <TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [running]> on host 5738e3608064
+[2025-09-03T15:45:35.454+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='cs_ingestion_monthly' AIRFLOW_CTX_TASK_ID='fetch_for_interval' AIRFLOW_CTX_EXECUTION_DATE='2025-08-01T00:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-08-01T00:00:00+00:00'
+[2025-09-03T15:45:35.455+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2025-09-03T15:45:35.455+0000] {dag_cs.py:44} INFO - Starting ingestion task
+[2025-09-03T15:45:35.455+0000] {dag_cs.py:69} INFO - Processing window: 2025-08-01 00:00:00 -> 2025-09-01 00:00:00
+[2025-09-03T15:45:35.455+0000] {dag_cs.py:76} ERROR - Failed to import ingestion_cs: No module named 'ingestion'
+[2025-09-03T15:45:35.455+0000] {dag_cs.py:90} ERROR - Task failed with error: No module named 'ingestion'
+[2025-09-03T15:45:35.456+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2025-09-03T15:45:35.456+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/decorators/base.py", line 265, in execute
+    return_value = super().execute(context)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 235, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 252, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/dag_cs.py", line 73, in run_ingestion_for_window
+    from ingestion import ingestion_cs
+ModuleNotFoundError: No module named 'ingestion'
+[2025-09-03T15:45:35.460+0000] {taskinstance.py:1206} INFO - Marking task as UP_FOR_RETRY. dag_id=cs_ingestion_monthly, task_id=fetch_for_interval, run_id=scheduled__2025-08-01T00:00:00+00:00, execution_date=20250801T000000, start_date=20250903T154535, end_date=20250903T154535
+[2025-09-03T15:45:35.464+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 8 for task fetch_for_interval (No module named 'ingestion'; 187)
+[2025-09-03T15:45:35.499+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 1
+[2025-09-03T15:45:35.510+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-09-03T15:45:35.511+0000] {local_task_job_runner.py:222} INFO - ::endgroup::
+[2025-09-03T17:47:25.696+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2025-09-03T17:47:25.710+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [queued]>
+[2025-09-03T17:47:25.713+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [queued]>
+[2025-09-03T17:47:25.713+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 2
+[2025-09-03T17:47:25.718+0000] {taskinstance.py:2330} INFO - Executing <Task(_PythonDecoratedOperator): fetch_for_interval> on 2025-08-01 00:00:00+00:00
+[2025-09-03T17:47:25.722+0000] {logging_mixin.py:188} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:61 DeprecationWarning: This process (pid=1025) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2025-09-03T17:47:25.721+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'cs_ingestion_monthly', 'fetch_for_interval', 'scheduled__2025-08-01T00:00:00+00:00', '--job-id', '27', '--raw', '--subdir', 'DAGS_FOLDER/dag_cs.py', '--cfg-path', '/tmp/tmp_r39zgwv']
+[2025-09-03T17:47:25.722+0000] {standard_task_runner.py:91} INFO - Job 27: Subtask fetch_for_interval
+[2025-09-03T17:47:25.722+0000] {standard_task_runner.py:63} INFO - Started process 1026 to run task
+[2025-09-03T17:47:25.748+0000] {task_command.py:426} INFO - Running <TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [running]> on host cd1378bab084
+[2025-09-03T17:47:25.784+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='cs_ingestion_monthly' AIRFLOW_CTX_TASK_ID='fetch_for_interval' AIRFLOW_CTX_EXECUTION_DATE='2025-08-01T00:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-08-01T00:00:00+00:00'
+[2025-09-03T17:47:25.784+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2025-09-03T17:47:25.784+0000] {dag_cs.py:47} INFO - Starting ingestion task
+[2025-09-03T17:47:25.785+0000] {dag_cs.py:72} INFO - Processing window: 2025-08-01 00:00:00 -> 2025-09-01 00:00:00
+[2025-09-03T17:47:25.785+0000] {dag_cs.py:79} WARNING - Package function import failed (No module named 'ingestion'); trying package module
+[2025-09-03T17:47:25.785+0000] {dag_cs.py:86} WARNING - Package module import failed (No module named 'ingestion'); trying top-level module
+[2025-09-03T17:47:26.011+0000] {dag_cs.py:91} INFO - Imported top-level ingestion_cs module
+[2025-09-03T17:47:26.011+0000] {ingestion_cs.py:45} INFO - Formatting datetime 2025-08-01 00:00:00 to arXiv format.
+[2025-09-03T17:47:26.011+0000] {ingestion_cs.py:45} INFO - Formatting datetime 2025-08-31 23:59:00 to arXiv format.
+[2025-09-03T17:47:27.604+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=0)
+[2025-09-03T17:47:30.840+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=200)
+[2025-09-03T17:47:34.080+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=400)
+[2025-09-03T17:47:37.502+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=600)
+[2025-09-03T17:47:40.753+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=800)
+[2025-09-03T17:47:44.235+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=1000)
+[2025-09-03T17:47:47.508+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=1200)
+[2025-09-03T17:47:50.771+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=1400)
+[2025-09-03T17:47:54.008+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=1600)
+[2025-09-03T17:47:57.257+0000] {ingestion_cs.py:120} INFO - [2025-08] Empty page at start=1800; retry 1 after short backoff.
+[2025-09-03T17:48:00.499+0000] {ingestion_cs.py:120} INFO - [2025-08] Empty page at start=1800; retry 2 after short backoff.
+[2025-09-03T17:48:04.688+0000] {ingestion_cs.py:123} INFO - [2025-08] No more entries at start=1800.
+[2025-09-03T17:48:04.688+0000] {ingestion_cs.py:161} INFO - Result: 1800 entries fetched for window 2025-08-01 00:00:00 to 2025-08-31 23:59:00.
+[2025-09-03T17:48:04.771+0000] {dag_cs.py:133} INFO - Saved CSV with 1800 rows to /opt/***/logs/data/arxiv_cs_20250801_20250901.csv
+[2025-09-03T17:48:06.189+0000] {dag_cs.py:147} INFO - Saved Parquet to GCS: gs://research-paper857/research/cs_20250801_20250901.parquet
+[2025-09-03T17:48:06.190+0000] {python.py:237} INFO - Done. Returned value was: {'rows': 1800, 'csv': '/opt/***/logs/data/arxiv_cs_20250801_20250901.csv', 'gcs': 'gs://research-paper857/research/cs_20250801_20250901.parquet'}
+[2025-09-03T17:48:06.191+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2025-09-03T17:48:06.205+0000] {taskinstance.py:1206} INFO - Marking task as SUCCESS. dag_id=cs_ingestion_monthly, task_id=fetch_for_interval, run_id=scheduled__2025-08-01T00:00:00+00:00, execution_date=20250801T000000, start_date=20250903T174725, end_date=20250903T174806
+[2025-09-03T17:48:06.242+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 0
+[2025-09-03T17:48:06.250+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-09-03T17:48:06.251+0000] {local_task_job_runner.py:222} INFO - ::endgroup::
+[2025-09-03T17:58:43.825+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2025-09-03T17:58:43.841+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [queued]>
+[2025-09-03T17:58:43.849+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [queued]>
+[2025-09-03T17:58:43.850+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 2
+[2025-09-03T17:58:43.856+0000] {taskinstance.py:2330} INFO - Executing <Task(_PythonDecoratedOperator): fetch_for_interval> on 2025-08-01 00:00:00+00:00
+[2025-09-03T17:58:43.861+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'cs_ingestion_monthly', 'fetch_for_interval', 'scheduled__2025-08-01T00:00:00+00:00', '--job-id', '30', '--raw', '--subdir', 'DAGS_FOLDER/dag_cs.py', '--cfg-path', '/tmp/tmpl3urs5k6']
+[2025-09-03T17:58:43.863+0000] {logging_mixin.py:188} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:61 DeprecationWarning: This process (pid=1161) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2025-09-03T17:58:43.864+0000] {standard_task_runner.py:91} INFO - Job 30: Subtask fetch_for_interval
+[2025-09-03T17:58:43.864+0000] {standard_task_runner.py:63} INFO - Started process 1163 to run task
+[2025-09-03T17:58:43.891+0000] {task_command.py:426} INFO - Running <TaskInstance: cs_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [running]> on host cd1378bab084
+[2025-09-03T17:58:43.924+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='cs_ingestion_monthly' AIRFLOW_CTX_TASK_ID='fetch_for_interval' AIRFLOW_CTX_EXECUTION_DATE='2025-08-01T00:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-08-01T00:00:00+00:00'
+[2025-09-03T17:58:43.928+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2025-09-03T17:58:43.928+0000] {dag_cs.py:47} INFO - Starting ingestion task
+[2025-09-03T17:58:43.929+0000] {dag_cs.py:72} INFO - Processing window: 2025-08-01 00:00:00 -> 2025-09-01 00:00:00
+[2025-09-03T17:58:43.929+0000] {dag_cs.py:79} WARNING - Package function import failed (No module named 'ingestion'); trying package module
+[2025-09-03T17:58:43.929+0000] {dag_cs.py:86} WARNING - Package module import failed (No module named 'ingestion'); trying top-level module
+[2025-09-03T17:58:44.178+0000] {dag_cs.py:91} INFO - Imported top-level ingestion_cs module
+[2025-09-03T17:58:44.178+0000] {ingestion_cs.py:45} INFO - Formatting datetime 2025-08-01 00:00:00 to arXiv format.
+[2025-09-03T17:58:44.179+0000] {ingestion_cs.py:45} INFO - Formatting datetime 2025-08-31 23:59:00 to arXiv format.
+[2025-09-03T17:58:44.933+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=0)
+[2025-09-03T17:58:48.623+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=200)
+[2025-09-03T17:58:52.236+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=400)
+[2025-09-03T17:58:55.907+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=600)
+[2025-09-03T17:58:59.537+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=800)
+[2025-09-03T17:59:03.177+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=1000)
+[2025-09-03T17:59:06.834+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=1200)
+[2025-09-03T17:59:10.304+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=1400)
+[2025-09-03T17:59:13.911+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=1600)
+[2025-09-03T17:59:17.259+0000] {ingestion_cs.py:120} INFO - [2025-08] Empty page at start=1800; retry 1 after short backoff.
+[2025-09-03T17:59:20.689+0000] {ingestion_cs.py:120} INFO - [2025-08] Empty page at start=1800; retry 2 after short backoff.
+[2025-09-03T17:59:24.924+0000] {ingestion_cs.py:123} INFO - [2025-08] No more entries at start=1800.
+[2025-09-03T17:59:24.925+0000] {ingestion_cs.py:161} INFO - Result: 1800 entries fetched for window 2025-08-01 00:00:00 to 2025-08-31 23:59:00.
+[2025-09-03T17:59:25.026+0000] {dag_cs.py:133} INFO - Saved CSV with 1800 rows to /opt/***/logs/data/arxiv_cs_20250801_20250901.csv
+[2025-09-03T17:59:26.168+0000] {dag_cs.py:146} INFO - Saved Parquet to GCS: gs://research-paper857/research/cs_latest.parquet
+[2025-09-03T17:59:26.170+0000] {python.py:237} INFO - Done. Returned value was: {'rows': 1800, 'csv': '/opt/***/logs/data/arxiv_cs_20250801_20250901.csv', 'gcs': 'gs://research-paper857/research/cs_latest.parquet'}
+[2025-09-03T17:59:26.171+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2025-09-03T17:59:26.188+0000] {taskinstance.py:1206} INFO - Marking task as SUCCESS. dag_id=cs_ingestion_monthly, task_id=fetch_for_interval, run_id=scheduled__2025-08-01T00:00:00+00:00, execution_date=20250801T000000, start_date=20250903T175843, end_date=20250903T175926
+[2025-09-03T17:59:26.238+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 0
+[2025-09-03T17:59:26.248+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-09-03T17:59:26.249+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

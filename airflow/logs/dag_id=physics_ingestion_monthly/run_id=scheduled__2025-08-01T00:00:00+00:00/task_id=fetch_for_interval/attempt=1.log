@@ -1,0 +1,35 @@
+[2025-09-03T18:32:04.153+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2025-09-03T18:32:04.166+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: physics_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [queued]>
+[2025-09-03T18:32:04.169+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: physics_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [queued]>
+[2025-09-03T18:32:04.169+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 2
+[2025-09-03T18:32:04.173+0000] {taskinstance.py:2330} INFO - Executing <Task(_PythonDecoratedOperator): fetch_for_interval> on 2025-08-01 00:00:00+00:00
+[2025-09-03T18:32:04.177+0000] {logging_mixin.py:188} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:61 DeprecationWarning: This process (pid=1525) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2025-09-03T18:32:04.176+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'physics_ingestion_monthly', 'fetch_for_interval', 'scheduled__2025-08-01T00:00:00+00:00', '--job-id', '31', '--raw', '--subdir', 'DAGS_FOLDER/dags_physic.py', '--cfg-path', '/tmp/tmpwszqj6r2']
+[2025-09-03T18:32:04.178+0000] {standard_task_runner.py:91} INFO - Job 31: Subtask fetch_for_interval
+[2025-09-03T18:32:04.177+0000] {standard_task_runner.py:63} INFO - Started process 1526 to run task
+[2025-09-03T18:32:04.197+0000] {task_command.py:426} INFO - Running <TaskInstance: physics_ingestion_monthly.fetch_for_interval scheduled__2025-08-01T00:00:00+00:00 [running]> on host cd1378bab084
+[2025-09-03T18:32:04.226+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='physics_ingestion_monthly' AIRFLOW_CTX_TASK_ID='fetch_for_interval' AIRFLOW_CTX_EXECUTION_DATE='2025-08-01T00:00:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-08-01T00:00:00+00:00'
+[2025-09-03T18:32:04.226+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2025-09-03T18:32:04.227+0000] {dags_physic.py:47} INFO - Starting physics ingestion task
+[2025-09-03T18:32:04.227+0000] {dags_physic.py:71} INFO - Processing window: 2025-08-01 00:00:00 -> 2025-09-01 00:00:00
+[2025-09-03T18:32:04.227+0000] {dags_physic.py:78} WARNING - Package function import failed (No module named 'ingestion'); trying package module
+[2025-09-03T18:32:04.227+0000] {dags_physic.py:85} WARNING - Package module import failed (No module named 'ingestion'); trying top-level module
+[2025-09-03T18:32:04.496+0000] {dags_physic.py:90} INFO - Imported top-level ingestion_physic module
+[2025-09-03T18:32:04.496+0000] {ingestion_physic.py:53} INFO - Formatting datetime 2025-08-01 00:00:00 to arXiv format.
+[2025-09-03T18:32:04.496+0000] {ingestion_physic.py:53} INFO - Formatting datetime 2025-08-31 23:59:00 to arXiv format.
+[2025-09-03T18:32:06.112+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=0)
+[2025-09-03T18:32:10.338+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=200)
+[2025-09-03T18:32:14.664+0000] {ingestion_physic.py:165} INFO - [2025-08] got 200 (start=400)
+[2025-09-03T18:32:18.061+0000] {ingestion_physic.py:128} INFO - [2025-08] Empty page at start=600; retry 1 after short backoff.
+[2025-09-03T18:32:21.297+0000] {ingestion_physic.py:128} INFO - [2025-08] Empty page at start=600; retry 2 after short backoff.
+[2025-09-03T18:32:25.498+0000] {ingestion_physic.py:131} INFO - [2025-08] No more entries at start=600.
+[2025-09-03T18:32:25.498+0000] {ingestion_physic.py:170} INFO - Result: 600 entries fetched for window 2025-08-01 00:00:00 to 2025-08-31 23:59:00.
+[2025-09-03T18:32:25.524+0000] {dags_physic.py:127} INFO - Saved CSV with 600 rows to /opt/***/logs/data/arxiv_physics_20250801_20250901.csv
+[2025-09-03T18:32:26.541+0000] {dags_physic.py:141} INFO - Saved Parquet to GCS (dated): gs://research-paper857/research/physics_20250801_20250901.parquet
+[2025-09-03T18:32:27.073+0000] {dags_physic.py:149} INFO - Saved Parquet to GCS (stable): gs://research-paper857/research/physics_latest.parquet
+[2025-09-03T18:32:27.075+0000] {python.py:237} INFO - Done. Returned value was: {'rows': 600, 'csv': '/opt/***/logs/data/arxiv_physics_20250801_20250901.csv', 'gcs_dated': 'gs://research-paper857/research/physics_20250801_20250901.parquet', 'gcs_stable': 'gs://research-paper857/research/physics_latest.parquet'}
+[2025-09-03T18:32:27.075+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2025-09-03T18:32:27.095+0000] {taskinstance.py:1206} INFO - Marking task as SUCCESS. dag_id=physics_ingestion_monthly, task_id=fetch_for_interval, run_id=scheduled__2025-08-01T00:00:00+00:00, execution_date=20250801T000000, start_date=20250903T183204, end_date=20250903T183227
+[2025-09-03T18:32:27.117+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 0
+[2025-09-03T18:32:27.126+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-09-03T18:32:27.127+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

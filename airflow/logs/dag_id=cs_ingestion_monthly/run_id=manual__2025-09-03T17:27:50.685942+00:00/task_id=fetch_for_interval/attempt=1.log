@@ -1,0 +1,115 @@
+[2025-09-03T17:27:52.269+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2025-09-03T17:27:52.281+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: cs_ingestion_monthly.fetch_for_interval manual__2025-09-03T17:27:50.685942+00:00 [queued]>
+[2025-09-03T17:27:52.284+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: cs_ingestion_monthly.fetch_for_interval manual__2025-09-03T17:27:50.685942+00:00 [queued]>
+[2025-09-03T17:27:52.284+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 2
+[2025-09-03T17:27:52.289+0000] {taskinstance.py:2330} INFO - Executing <Task(_PythonDecoratedOperator): fetch_for_interval> on 2025-09-03 17:27:50.685942+00:00
+[2025-09-03T17:27:52.292+0000] {logging_mixin.py:188} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:61 DeprecationWarning: This process (pid=799) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2025-09-03T17:27:52.291+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'cs_ingestion_monthly', 'fetch_for_interval', 'manual__2025-09-03T17:27:50.685942+00:00', '--job-id', '24', '--raw', '--subdir', 'DAGS_FOLDER/dag_cs.py', '--cfg-path', '/tmp/tmpcmkzyz2x']
+[2025-09-03T17:27:52.293+0000] {standard_task_runner.py:91} INFO - Job 24: Subtask fetch_for_interval
+[2025-09-03T17:27:52.292+0000] {standard_task_runner.py:63} INFO - Started process 800 to run task
+[2025-09-03T17:27:52.310+0000] {task_command.py:426} INFO - Running <TaskInstance: cs_ingestion_monthly.fetch_for_interval manual__2025-09-03T17:27:50.685942+00:00 [running]> on host cd1378bab084
+[2025-09-03T17:27:52.336+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='cs_ingestion_monthly' AIRFLOW_CTX_TASK_ID='fetch_for_interval' AIRFLOW_CTX_EXECUTION_DATE='2025-09-03T17:27:50.685942+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-09-03T17:27:50.685942+00:00'
+[2025-09-03T17:27:52.336+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2025-09-03T17:27:52.337+0000] {dag_cs.py:47} INFO - Starting ingestion task
+[2025-09-03T17:27:52.337+0000] {dag_cs.py:72} INFO - Processing window: 2025-08-01 00:00:00 -> 2025-09-01 00:00:00
+[2025-09-03T17:27:52.337+0000] {dag_cs.py:79} WARNING - Package function import failed (No module named 'ingestion'); trying package module
+[2025-09-03T17:27:52.337+0000] {dag_cs.py:86} WARNING - Package module import failed (No module named 'ingestion'); trying top-level module
+[2025-09-03T17:27:52.527+0000] {dag_cs.py:91} INFO - Imported top-level ingestion_cs module
+[2025-09-03T17:27:52.527+0000] {ingestion_cs.py:45} INFO - Formatting datetime 2025-08-01 00:00:00 to arXiv format.
+[2025-09-03T17:27:52.527+0000] {ingestion_cs.py:45} INFO - Formatting datetime 2025-08-31 23:59:00 to arXiv format.
+[2025-09-03T17:27:52.728+0000] {ingestion_cs.py:156} INFO - [2025-08] got 100 (start=0)
+[2025-09-03T17:27:56.855+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=200)
+[2025-09-03T17:28:01.070+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=400)
+[2025-09-03T17:28:05.250+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=600)
+[2025-09-03T17:28:09.456+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=800)
+[2025-09-03T17:28:13.655+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=1000)
+[2025-09-03T17:28:17.859+0000] {ingestion_cs.py:156} INFO - [2025-08] got 200 (start=1200)
+[2025-09-03T17:28:20.991+0000] {ingestion_cs.py:120} INFO - [2025-08] Empty page at start=1400; retry 1 after short backoff.
+[2025-09-03T17:28:24.127+0000] {ingestion_cs.py:120} INFO - [2025-08] Empty page at start=1400; retry 2 after short backoff.
+[2025-09-03T17:28:28.237+0000] {ingestion_cs.py:123} INFO - [2025-08] No more entries at start=1400.
+[2025-09-03T17:28:28.238+0000] {ingestion_cs.py:161} INFO - Result: 1300 entries fetched for window 2025-08-01 00:00:00 to 2025-08-31 23:59:00.
+[2025-09-03T17:28:28.287+0000] {dag_cs.py:133} INFO - Saved CSV with 1300 rows to /opt/***/logs/data/arxiv_cs_20250801_20250901.csv
+[2025-09-03T17:28:29.189+0000] {dag_cs.py:149} ERROR - Failed to write Parquet to GCS: Forbidden: https://storage.googleapis.com/upload/storage/v1/b/research-paper857/o?name=research%2Fcs_20250801_20250901.parquet
+daniellai@ragops.iam.gserviceaccount.com does not have storage.objects.create access to the Google Cloud Storage object. Permission 'storage.objects.create' denied on resource (or it may not exist).
+[2025-09-03T17:28:29.190+0000] {dag_cs.py:155} ERROR - Task failed with error: Forbidden: https://storage.googleapis.com/upload/storage/v1/b/research-paper857/o?name=research%2Fcs_20250801_20250901.parquet
+daniellai@ragops.iam.gserviceaccount.com does not have storage.objects.create access to the Google Cloud Storage object. Permission 'storage.objects.create' denied on resource (or it may not exist).
+[2025-09-03T17:28:29.190+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2025-09-03T17:28:29.190+0000] {taskinstance.py:2905} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 465, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/taskinstance.py", line 432, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/decorators/base.py", line 265, in execute
+    return_value = super().execute(context)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/models/baseoperator.py", line 401, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 235, in execute
+    return_value = self.execute_callable()
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/airflow/operators/python.py", line 252, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/airflow/dags/dag_cs.py", line 142, in run_ingestion_for_window
+    df.to_parquet(
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/util/_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/core/frame.py", line 3118, in to_parquet
+    return to_parquet(
+           ^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/io/parquet.py", line 482, in to_parquet
+    impl.write(
+  File "/home/airflow/.local/lib/python3.12/site-packages/pandas/io/parquet.py", line 229, in write
+    self.api.parquet.write_table(
+  File "/home/airflow/.local/lib/python3.12/site-packages/pyarrow/parquet/core.py", line 1957, in write_table
+    with ParquetWriter(
+  File "/home/airflow/.local/lib/python3.12/site-packages/pyarrow/parquet/core.py", line 1102, in __exit__
+    self.close()
+  File "/home/airflow/.local/lib/python3.12/site-packages/pyarrow/parquet/core.py", line 1178, in close
+    self.file_handle.close()
+  File "pyarrow/io.pxi", line 206, in pyarrow.lib.NativeFile.close
+  File "pyarrow/error.pxi", line 89, in pyarrow.lib.check_status
+  File "/home/airflow/.local/lib/python3.12/site-packages/fsspec/spec.py", line 2206, in close
+    self.flush(force=True)
+  File "/home/airflow/.local/lib/python3.12/site-packages/fsspec/spec.py", line 2064, in flush
+    self._initiate_upload()
+  File "/home/airflow/.local/lib/python3.12/site-packages/gcsfs/core.py", line 1984, in _initiate_upload
+    self.location = asyn.sync(
+                    ^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/airflow/.local/lib/python3.12/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/gcsfs/core.py", line 2110, in initiate_upload
+    headers, _ = await fs._call(
+                 ^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/gcsfs/core.py", line 483, in _call
+    status, headers, info, contents = await self._request(
+                                      ^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/decorator.py", line 221, in fun
+    return await caller(func, *(extras + args), **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/gcsfs/retry.py", line 135, in retry_request
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/airflow/.local/lib/python3.12/site-packages/gcsfs/core.py", line 476, in _request
+    validate_response(status, contents, path, args)
+  File "/home/airflow/.local/lib/python3.12/site-packages/gcsfs/retry.py", line 114, in validate_response
+    raise OSError(f"Forbidden: {path}\n{msg}")
+OSError: Forbidden: https://storage.googleapis.com/upload/storage/v1/b/research-paper857/o?name=research%2Fcs_20250801_20250901.parquet
+daniellai@ragops.iam.gserviceaccount.com does not have storage.objects.create access to the Google Cloud Storage object. Permission 'storage.objects.create' denied on resource (or it may not exist).
+[2025-09-03T17:28:29.205+0000] {taskinstance.py:1206} INFO - Marking task as UP_FOR_RETRY. dag_id=cs_ingestion_monthly, task_id=fetch_for_interval, run_id=manual__2025-09-03T17:27:50.685942+00:00, execution_date=20250903T172750, start_date=20250903T172752, end_date=20250903T172829
+[2025-09-03T17:28:29.213+0000] {standard_task_runner.py:110} ERROR - Failed to execute job 24 for task fetch_for_interval (Forbidden: https://storage.googleapis.com/upload/storage/v1/b/research-paper857/o?name=research%2Fcs_20250801_20250901.parquet
+daniellai@ragops.iam.gserviceaccount.com does not have storage.objects.create access to the Google Cloud Storage object. Permission 'storage.objects.create' denied on resource (or it may not exist).; 800)
+[2025-09-03T17:28:29.241+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 1
+[2025-09-03T17:28:29.252+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-09-03T17:28:29.252+0000] {local_task_job_runner.py:222} INFO - ::endgroup::

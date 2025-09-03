@@ -1,0 +1,21 @@
+[2025-09-03T21:25:46.901+0000] {processor.py:161} INFO - Started process (PID=4959) to work on /opt/airflow/dags/dag_physic.py
+[2025-09-03T21:25:46.902+0000] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_physic.py for tasks to queue
+[2025-09-03T21:25:46.902+0000] {logging_mixin.py:188} INFO - [2025-09-03T21:25:46.902+0000] {dagbag.py:545} INFO - Filling up the DagBag from /opt/airflow/dags/dag_physic.py
+[2025-09-03T21:25:46.911+0000] {processor.py:840} INFO - DAG(s) 'physics_ingestion_monthly' retrieved from /opt/airflow/dags/dag_physic.py
+[2025-09-03T21:25:46.961+0000] {logging_mixin.py:188} INFO - [2025-09-03T21:25:46.961+0000] {dag.py:3096} INFO - Sync 1 DAGs
+[2025-09-03T21:25:46.968+0000] {logging_mixin.py:188} INFO - [2025-09-03T21:25:46.968+0000] {dag.py:3954} INFO - Setting next_dagrun for physics_ingestion_monthly to 2025-09-01 00:00:00+00:00, run_after=2025-10-01 00:00:00+00:00
+[2025-09-03T21:25:46.975+0000] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_physic.py took 0.078 seconds
+[2025-09-03T21:26:17.265+0000] {processor.py:161} INFO - Started process (PID=4969) to work on /opt/airflow/dags/dag_physic.py
+[2025-09-03T21:26:17.266+0000] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_physic.py for tasks to queue
+[2025-09-03T21:26:17.267+0000] {logging_mixin.py:188} INFO - [2025-09-03T21:26:17.266+0000] {dagbag.py:545} INFO - Filling up the DagBag from /opt/airflow/dags/dag_physic.py
+[2025-09-03T21:26:17.276+0000] {processor.py:840} INFO - DAG(s) 'physics_ingestion_monthly' retrieved from /opt/airflow/dags/dag_physic.py
+[2025-09-03T21:26:17.293+0000] {logging_mixin.py:188} INFO - [2025-09-03T21:26:17.292+0000] {dag.py:3096} INFO - Sync 1 DAGs
+[2025-09-03T21:26:17.301+0000] {logging_mixin.py:188} INFO - [2025-09-03T21:26:17.301+0000] {dag.py:3954} INFO - Setting next_dagrun for physics_ingestion_monthly to 2025-09-01 00:00:00+00:00, run_after=2025-10-01 00:00:00+00:00
+[2025-09-03T21:26:17.308+0000] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_physic.py took 0.048 seconds
+[2025-09-03T21:26:47.590+0000] {processor.py:161} INFO - Started process (PID=4979) to work on /opt/airflow/dags/dag_physic.py
+[2025-09-03T21:26:47.592+0000] {processor.py:830} INFO - Processing file /opt/airflow/dags/dag_physic.py for tasks to queue
+[2025-09-03T21:26:47.593+0000] {logging_mixin.py:188} INFO - [2025-09-03T21:26:47.593+0000] {dagbag.py:545} INFO - Filling up the DagBag from /opt/airflow/dags/dag_physic.py
+[2025-09-03T21:26:47.604+0000] {processor.py:840} INFO - DAG(s) 'physics_ingestion_monthly' retrieved from /opt/airflow/dags/dag_physic.py
+[2025-09-03T21:26:47.626+0000] {logging_mixin.py:188} INFO - [2025-09-03T21:26:47.626+0000] {dag.py:3096} INFO - Sync 1 DAGs
+[2025-09-03T21:26:47.637+0000] {logging_mixin.py:188} INFO - [2025-09-03T21:26:47.637+0000] {dag.py:3954} INFO - Setting next_dagrun for physics_ingestion_monthly to 2025-09-01 00:00:00+00:00, run_after=2025-10-01 00:00:00+00:00
+[2025-09-03T21:26:47.644+0000] {processor.py:183} INFO - Processing /opt/airflow/dags/dag_physic.py took 0.064 seconds
