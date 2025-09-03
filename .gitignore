@@ -14,4 +14,4 @@ examples/.ragops_milvus.db.lock
 # OS junk
 .DS_Store
 EOF
-examples/examples_RAG.ipynb
+examples/example_RAG.ipynb
