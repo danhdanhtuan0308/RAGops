@@ -33,7 +33,7 @@ def _iso(s: str) -> datetime:
     dag_id="physics_ingestion_monthly",
     description="Fetch arXiv physics papers monthly and store in GCS",
     schedule="0 0 1 * *",                # run monthly at 00:00 on the 1st
-    start_date=datetime(2025, 3, 1),     # change to 2025-10-01 when you’re ready
+    start_date=datetime(2025, 10, 1),     # change to 2025-10-01 when you’re ready
     catchup=False,
     default_args=default_args,
     tags=["arxiv", "physics", "ingestion"],

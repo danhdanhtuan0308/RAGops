@@ -37,7 +37,7 @@ def _iso(s: str) -> datetime:
     dag_id="stats_ingestion_monthly",
     description="Fetch arXiv Statistics (stat.*) papers monthly and store in GCS",
     schedule="0 0 1 * *",
-    start_date=datetime(2025, 3, 1),
+    start_date=datetime(2025, 10, 1),
     catchup=False,
     default_args=default_args,
     tags=["arxiv", "statistics", "ingestion"],

@@ -169,8 +169,8 @@ def fetch_cs_since_2024(
     return_dataframe: bool = True,
 ):
     
-    start = datetime(2024, 7, 1)
-    end_dt = datetime(2025, 4, 1) if to_date is None else to_date
+    start = datetime(2024, 1, 1)
+    end_dt = datetime(2025, 9, 1) if to_date is None else to_date
     end = end_dt.replace(second=0, microsecond=0).replace(tzinfo=None)
 
     q_base = build_cs_query()

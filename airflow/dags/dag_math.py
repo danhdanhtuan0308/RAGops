@@ -41,7 +41,7 @@ def _iso(s: str) -> datetime:
     dag_id="math_ingestion_monthly",
     description="Fetch arXiv Math (math.*) papers monthly and store in GCS",
     schedule="0 0 1 * *",                # monthly at 00:00 on the 1st
-    start_date=datetime(2025, 3, 1),     # bump to 2025-10-01 when you’re ready
+    start_date=datetime(2025, 10, 1),     # bump to 2025-10-01 when you’re ready
     catchup=False,
     default_args=default_args,
     tags=["arxiv", "math", "ingestion"],

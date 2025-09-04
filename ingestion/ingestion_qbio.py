@@ -176,8 +176,8 @@ def fetch_bio(
     Harvest arXiv Quantitative Biology (q-bio) papers from 2023-01-01 up to 'to_date' (default: 2025-03-01).
     Saves to Parquet (GCS) and returns a pandas DataFrame.
     """
-    start = datetime(2024, 7, 1)
-    end_dt = datetime(2025, 3, 1, 0, 0) if to_date is None else to_date
+    start = datetime(2024, 1, 1)
+    end_dt = datetime(2025, 9, 1, 0, 0) if to_date is None else to_date
     end = end_dt.replace(second=0, microsecond=0).replace(tzinfo=None)
 
     q_base = build_bio_query()
@@ -203,8 +203,8 @@ def fetch_bio(
 
     # Parquet: write to your GCS bucket; also set a local filename for logs
     if out_parquet is None:
-        out_parquet = f"arxiv_bio_{start.strftime('%Y%m%d')}_{end.strftime('%Y%m%d')}.parquet"
-    gcs_uri = f"gs://research-paper857/research/bio_{start.strftime('%Y%m%d')}_{end.strftime('%Y%m%d')}.parquet"
+        out_parquet = f"arxiv_qbio_{start.strftime('%Y%m%d')}_{end.strftime('%Y%m%d')}.parquet"
+    gcs_uri = f"gs://research-paper857/research/qbio_{start.strftime('%Y%m%d')}_{end.strftime('%Y%m%d')}.parquet"
 
     try:
         # Requires pyarrow or fastparquet and gcsfs installed; uses ADC via storage_options
