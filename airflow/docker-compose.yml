@@ -15,9 +15,6 @@ x-airflow-common: &airflow-common
     GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/keys/google-credentials.json
 
     # Install extra deps on container start (no Dockerfile needed)
-    _PIP_ADDITIONAL_REQUIREMENTS: >-
-      feedparser>=6.0.11 pandas>=2.3.2 requests>=2.32.5
-      pyarrow>=21.0.0 fsspec>=2024.6.0 gcsfs>=2024.6.1
     PIP_ADDITIONAL_REQUIREMENTS: >-
       feedparser>=6.0.11 pandas>=2.3.2 requests>=2.32.5
       pyarrow>=21.0.0 fsspec>=2024.6.0 gcsfs>=2024.6.1

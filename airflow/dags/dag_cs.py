@@ -44,8 +44,7 @@ def cs_ingestion_monthly():
 
     @task(task_id="fetch_for_interval")
     def run_ingestion_for_window():
-        logging.info("Starting ingestion task")
-        
+        logging.info("Starting ingestion task")        
         try:
             ctx = get_current_context()
             dr = ctx.get("dag_run")
@@ -136,7 +135,7 @@ def cs_ingestion_monthly():
             gcs_prefix = "gs://research-paper857/research"
 
             dated_uri  = f"{gcs_prefix}/cs_{wstart.strftime('%Y%m%d')}_{wend_exclusive.strftime('%Y%m%d')}.parquet"
-            stable_uri = f"{gcs_prefix}/cs_latest.parquet"  # <- constant name for BigQuery
+            stable_uri = f"{gcs_prefix}/cs_latest.parquet"  # static name for BigQuery
 
             try:
                 # Write historical, date-stamped object
