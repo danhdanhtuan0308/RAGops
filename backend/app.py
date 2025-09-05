@@ -758,48 +758,36 @@ def evaluate_response(query: str, answer: str, papers: List[Dict[str, Any]]) -> 
         context += f"Abstract: {paper.get('abstract', '')}\n"
     
     # Create evaluation prompt
-    system_prompt = """
-    You are an expert evaluator for RAG (Retrieval Augmented Generation) systems. Your task is to evaluate the quality
-    of an answer generated in response to a user query, based on the retrieved documents.
-    
-    Please evaluate the provided answer on the following dimensions:
-    
-    1. Hallucination (0-10): Does the answer contain information not present in the retrieved documents?
-       - 0: Contains completely fabricated information
-       - 10: All information is directly supported by the documents
-    
-    2. Truthfulness (0-10): Is the information in the answer factually correct?
-       - 0: Contains significant factual errors
-       - 10: All information is factually correct
-    
-    3. Accuracy (0-10): Does the answer correctly interpret and represent the information from the documents?
-       - 0: Misinterprets or misrepresents the documents
-       - 10: Correctly interprets and represents all information
-    
-    4. Relevancy (0-10): Is the answer relevant to the user's query?
-       - 0: Completely off-topic
-       - 10: Directly addresses the user's query
-    
-    For each dimension, provide:
-    1. A numerical score (0-10)
-    2. A brief explanation for your score
-    
-    Finally, provide an overall assessment of the answer quality.
-    
-    Your evaluation should be objective, fair, and based solely on the content of the documents and the answer.
-    """
+        system_prompt = """
+You are an expert evaluator for Retrieval-Augmented Generation (RAG) systems. Evaluate the answer strictly with ONLY the provided documents as ground truth.
+
+Return STRICT minified JSON (no markdown, no prose before/after) with this exact schema:
+{
+    "Hallucination": {"score": <0-10 number>, "explanation": "..."},
+    "Truthfulness": {"score": <0-10 number>, "explanation": "..."},
+    "Accuracy": {"score": <0-10 number>, "explanation": "..."},
+    "Relevancy": {"score": <0-10 number>, "explanation": "..."},
+    "OverallComment": "... concise overall assessment ..."
+}
+
+Scoring guidance (0–10 integers or decimals allowed):
+- Hallucination: 10 = entirely grounded; 0 = mostly fabricated.
+- Truthfulness: 10 = factually correct; 0 = major factual errors.
+- Accuracy: 10 = faithfully represents documents; 0 = misrepresents.
+- Relevancy: 10 = directly answers query; 0 = off-topic.
+Keep explanations short (<=30 words each). Do not add fields. Do not wrap in ```.
+"""
     
     user_prompt = f"""
-    User Query: {query}
-    
-    Retrieved Documents:
-    {context}
-    
-    Generated Answer:
-    {answer}
-    
-    Please evaluate this answer based on the criteria specified.
-    """
+User Query: {query}
+
+Retrieved Documents:
+{context}
+
+Generated Answer:
+{answer}
+
+Return ONLY the JSON object now."""
     
     try:
         response = openai.ChatCompletion.create(
@@ -808,24 +796,75 @@ def evaluate_response(query: str, answer: str, papers: List[Dict[str, Any]]) -> 
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.1,
-            max_tokens=1000
+            temperature=0.0,
+            max_tokens=500
         )
-        
-        evaluation_text = response['choices'][0]['message']['content']
-        
-        # Extract scores from evaluation text
-        # This is a simple regex-free approach - production code would use regex for more robust extraction
-        hallucination_score = float(extract_score(evaluation_text, "Hallucination", 7.0))
-        truthfulness_score = float(extract_score(evaluation_text, "Truthfulness", 7.0))
-        accuracy_score = float(extract_score(evaluation_text, "Accuracy", 7.0)) 
-        relevancy_score = float(extract_score(evaluation_text, "Relevancy", 7.0))
-        
+
+        evaluation_text = response['choices'][0]['message']['content'].strip()
+
+        # Attempt to isolate JSON (in case model adds stray text)
+        json_candidate = evaluation_text
+        if '```' in evaluation_text:
+            # Strip code fences if present
+            json_candidate = re.sub(r"```(json)?", "", evaluation_text).strip()
+
+        # Try JSON parsing first
+        parsed = None
+        try:
+            # Find first '{' ... last '}' span to be safe
+            start = json_candidate.find('{')
+            end = json_candidate.rfind('}') + 1
+            if start != -1 and end != -1:
+                parsed = json.loads(json_candidate[start:end])
+        except Exception as je:  # noqa
+            logger.warning(f"Evaluation JSON parse failed: {je}; will fallback to regex extraction")
+
+        def _safe_score(obj, key) -> Optional[float]:
+            try:
+                if obj is None:
+                    return None
+                val = obj.get(key)
+                if isinstance(val, dict):
+                    val = val.get('score')
+                if val is None:
+                    return None
+                f = float(val)
+                if f < 0: f = 0.0
+                if f > 10: f = 10.0
+                return f
+            except Exception:
+                return None
+
+        hallucination_score = _safe_score(parsed, 'Hallucination')
+        truthfulness_score = _safe_score(parsed, 'Truthfulness')
+        accuracy_score = _safe_score(parsed, 'Accuracy')
+        relevancy_score = _safe_score(parsed, 'Relevancy')
+
+        # Fallback to regex extraction if any missing
+        if None in [hallucination_score, truthfulness_score, accuracy_score, relevancy_score]:
+            logger.info("Falling back to regex score extraction for evaluation response")
+            hallucination_score = hallucination_score or extract_score(evaluation_text, "Hallucination")
+            truthfulness_score = truthfulness_score or extract_score(evaluation_text, "Truthfulness")
+            accuracy_score = accuracy_score or extract_score(evaluation_text, "Accuracy")
+            relevancy_score = relevancy_score or extract_score(evaluation_text, "Relevancy")
+
+        # Final guard: if still None, assign NaN-like neutral mid value 5.0 and log
+        def _finalize(v, name):
+            if v is None:
+                logger.warning(f"Evaluation missing {name} score; defaulting to 5.0")
+                return 5.0
+            return v
+
+        hallucination_score = _finalize(hallucination_score, 'Hallucination')
+        truthfulness_score = _finalize(truthfulness_score, 'Truthfulness')
+        accuracy_score = _finalize(accuracy_score, 'Accuracy')
+        relevancy_score = _finalize(relevancy_score, 'Relevancy')
+
         return EvaluationMetrics(
-            hallucination_score=hallucination_score,
-            truthfulness_score=truthfulness_score,
-            accuracy_score=accuracy_score,
-            relevancy_score=relevancy_score,
+            hallucination_score=float(hallucination_score),
+            truthfulness_score=float(truthfulness_score),
+            accuracy_score=float(accuracy_score),
+            relevancy_score=float(relevancy_score),
             explanation=evaluation_text
         )
     except Exception as e:
@@ -840,27 +879,17 @@ def evaluate_response(query: str, answer: str, papers: List[Dict[str, Any]]) -> 
         )
 
 def extract_score(text: str, dimension: str, default: float = 5.0) -> float:
-    """Extract score for a dimension from evaluation text"""
+    """Regex-based extraction of a dimension score (0-10) from free-form evaluation text."""
     try:
-        # Find the dimension in the text
-        start_idx = text.find(dimension)
-        if start_idx == -1:
-            return default
-        
-        # Look for numbers after the dimension
-        score_text = text[start_idx:start_idx + 100]  # Look at next 100 chars
-        
-        # Find the first number
-        for i in range(len(score_text)):
-            if score_text[i].isdigit():
-                # Handle both single digit and decimal scores
-                end_idx = i + 1
-                while end_idx < len(score_text) and (score_text[end_idx].isdigit() or score_text[end_idx] == '.'):
-                    end_idx += 1
-                return float(score_text[i:end_idx])
-        
+        pattern = rf"{dimension}[^0-9]*(\d+(?:\.\d+)?)"
+        m = re.search(pattern, text, flags=re.IGNORECASE)
+        if m:
+            val = float(m.group(1))
+            if val < 0: val = 0.0
+            if val > 10: val = 10.0
+            return val
         return default
-    except:
+    except Exception:
         return default
 
 #------------------------------------------------------------------------
