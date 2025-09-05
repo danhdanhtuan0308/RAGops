@@ -1,19 +1,17 @@
-
-cat >> .gitignore <<'EOF'
 # Secrets
-*.env
-.env*
+.venv
 airflow/keys/
 # Logs & generated data
 airflow/logs/
+backend/gcp-credentials.json
+backend/.env
+backend/milvus/
+backend/minio/
+backend/etcd/
+images/
 *.log
-# Notebooks & local artifacts
-.ipynb_checkpoints/
-examples/ragops_milvus.db
-examples/.ragops_milvus.db.lock
+# Notebooks & testing file
+test/
 # OS junk
 .DS_Store
-EOF
-examples/example_RAG.ipynb
-airflow/keys/
-examples/example_RAG.ipynb
+ingestion/__pycache__/
