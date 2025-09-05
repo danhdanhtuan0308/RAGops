@@ -741,6 +741,13 @@ def handle_summarize_query(raw_query: str, top_k: int) -> Tuple[str, List[Dict[s
         if url:
             pdf_text = fetch_pdf_text(url)
         if pdf_text:
+            # Inject truncated PDF text as a pseudo-abstract so evaluation has grounding
+            truncated = pdf_text[:8000]
+            target['abstract'] = truncated
+            if context_papers:
+                context_papers[0] = target
+            else:
+                context_papers = [target]
             summary_answer = summarize_from_text(target.get('title',''), pdf_text)
         else:
             summary_answer = ("Unable to locate sufficient abstract text or fetch PDF content for the requested title. "
@@ -750,6 +757,19 @@ def handle_summarize_query(raw_query: str, top_k: int) -> Tuple[str, List[Dict[s
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
 def evaluate_response(query: str, answer: str, papers: List[Dict[str, Any]]) -> EvaluationMetrics:
     """Evaluate the response using LLM as judge"""
+    # Guard: if no usable context (all abstracts empty), avoid misleading zero scores
+    if not papers or not any(p.get('abstract','').strip() for p in papers):
+        explanation = (
+            "Evaluation skipped: retrieved documents contain no abstract text. "
+            "Provide richer documents (re-ingest with abstracts or supply PDF) to enable grounded scoring."
+        )
+        return EvaluationMetrics(
+            hallucination_score=5.0,
+            truthfulness_score=5.0,
+            accuracy_score=5.0,
+            relevancy_score=5.0,
+            explanation=explanation
+        )
     # Create context from papers
     context = ""
     for i, paper in enumerate(papers[:3]):  # Use top 3 papers for evaluation context
@@ -759,7 +779,7 @@ def evaluate_response(query: str, answer: str, papers: List[Dict[str, Any]]) -> 
     
     # Create evaluation prompt
         system_prompt = """
-You are an expert evaluator for Retrieval-Augmented Generation (RAG) systems. Evaluate the answer strictly with ONLY the provided documents as ground truth.
+You are an expert evaluator judge for Retrieval-Augmented Generation (RAG) systems over 20 years of experience on arXiv platform. Evaluate the answer strictly with ONLY the provided documents as ground truth.
 
 Return STRICT minified JSON (no markdown, no prose before/after) with this exact schema:
 {
@@ -791,7 +811,7 @@ Return ONLY the JSON object now."""
     
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-4.1",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}

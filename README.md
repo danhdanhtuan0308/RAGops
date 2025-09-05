@@ -1,5 +1,10 @@
 ## End to End RAGops ( Not Finish ) 
 
+
+### Architecture 
+![alt text](images/architecture.png)
+
+
 ### Continuous improvement
 
 Adding : 
