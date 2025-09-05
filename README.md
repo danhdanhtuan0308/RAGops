@@ -1,7 +1,15 @@
-## End to End RAGops 
+## End to End RAGops ( Not Finish ) 
 
-### Data Architechture 
+### Continuous improvement
 
+Adding : 
+
+- Logging ( Elastic Stack + Filebeat )  + observability ( Kibana )
+- Sematic Caching ( Redis ) 
+- Model Serving ( BentoML instead of FastAPI for dynamic batch request + faster inference & embedding by leverage CPU/GPU )
+- Deploy on Kubernetes or Cloud-Run
+- Rare-limit design + Load balancing
+- Adding LLM guardrails 
 
 
 ### Data-Pipeline  : Ingestion from arXiv API -> Google Cloud (data-lake) -> Google BigQuery (data-warehouse) 
@@ -36,7 +44,8 @@
 
 ### Model-Pipeline for RAG system 
 
-- **Data Ingestion**: Retrieves research paper data from Google BigQuery
+- **Data Ingestion**: Retrieves research paper data from Google BigQuery ( Optional : adding airflow from Google Big Query -> Milvus ( Vector DB ) every month  or run on bash:  curl -s -X POST http://localhost:3030/ingest | jq ( adding new monthly data in ) ) 
+
 - **Vector Storage**: Uses Milvus as a vector database
 - **Embedding**: Uses OpenAI's text-embedding-3-small 
 - **Retrieval**: Fast vector similarity search using Milvus
@@ -46,6 +55,7 @@
 - **Metadata Enrichment**: Extracts additional paper metadata from URLs 
 
 #### Example Query & Response
+Accessing : localhost:3030/docs/query
 
 Below is a real summarize-mode example (query starts with `summarize ... (pdf_url)`), showing unified retrieval + rerank + summarization + LLM evaluation output structure.
 
@@ -163,4 +173,4 @@ Key fields:
 Notes:
 - When no abstract is stored, system fetches PDF (arXiv or direct .pdf) and summarizes first pages (truncated) with a truncation note.
 - Incremental ingestion (monthly) reuses deterministic IDs; unchanged papers are skipped.
-- Summarize mode is triggered by leading `summarize` keyword in the query.
+- Summarize mode is triggered by leading `summarize` keyword in the query. 
