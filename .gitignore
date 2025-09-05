@@ -8,7 +8,6 @@ backend/.env
 backend/milvus/
 backend/minio/
 backend/etcd/
-images/
 *.log
 # Notebooks & testing file
 test/
