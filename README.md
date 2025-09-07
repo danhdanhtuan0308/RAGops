@@ -12,7 +12,7 @@ Adding :
 - Logging ( Elastic Stack + Filebeat )  + observability ( Kibana )
 - Sematic Caching ( Redis ) 
 - Model Serving ( BentoML instead of FastAPI for dynamic batch request + faster inference & embedding by leverage CPU/GPU )
-- Deploy on Kubernetes or Cloud-Run
+- Deploy on GKE or Cloud-Run
 - Rare-limit design + Load balancing
 - Adding LLM guardrails 
 
