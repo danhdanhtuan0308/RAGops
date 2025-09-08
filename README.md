@@ -7,15 +7,16 @@
 
 ### Continuous improvement
 
-Adding : 
-
-- Maybe adding inginx as API gateway ? 
+Future Improvement : 
 - Sematic Caching ( Redis ) 
-- Model Serving ( BentoML instead of FastAPI for dynamic batch request + faster inference & embedding by leverage CPU/GPU )
-- Deploy on GKE or Cloud-Run ( only for the RAGsystem , not for others services )
-- Rare-limit design + Load balancing
-- Adding Open-Ele prometheus and Gafana 
-- Adding LLM guardrails 
+- Deploy on GKE or Cloud-Run ( only for the RAGsystem , not for others services ) 
+- prometheus direct scraping metrics from application and Gafana to monitoring
+- Github Action for CICD (write function test and Ingeration testing ) 
+
+Maybe : 
+- LLM Graudrails 
+- Load-balancing and Rarelimit design 
+- Terraform for automate Google Cloud deployment 
 
 
 ### Data-Pipeline  : Ingestion from arXiv API -> Google Cloud (data-lake) -> Google BigQuery (data-warehouse) 
@@ -265,8 +266,12 @@ Notes:
 
 ### ElasticSearch 
 
+#### Discovery Logs
 Collecting logs from RAG-system (query , LLM-as-judge scoring , cohere re-ranker score ,... ) using Filebeat 
 
-![alt text](images/elastic-search.png)
+![alt text](images/elastic-search.png) 
 
+#### Kibana Analytics 
+![alt text](images/kibana1.png)
 
+![alt text](images/kibana2.png)
