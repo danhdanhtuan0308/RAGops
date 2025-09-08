@@ -61,6 +61,12 @@ Adding :
 - **Metadata Enrichment**: Extracts additional paper metadata from URLs 
 
 #### Example Query & Response
+
+## Data Ingestion from Google Big Query into Milvus 
+
+This is an example :
+![alt text](images/milvus.png)
+
 Accessing : localhost:3030/docs/query
 
 Below is a real summarize-mode example (query starts with `summarize ... (pdf_url)`), showing unified retrieval + rerank + summarization + LLM evaluation output structure.
@@ -258,4 +264,9 @@ Notes:
 
 
 ### ElasticSearch 
+
+Collecting logs from RAG-system (query , LLM-as-judge scoring , cohere re-ranker score ,... ) using Filebeat 
+
 ![alt text](images/elastic-search.png)
+
+
