@@ -114,6 +114,11 @@ def handle_summarize_query(raw_query: str, top_k: int) -> Tuple[str, List[Dict[s
         pdf_text = fetch_pdf_text(url) if url else None
         if pdf_text:
             target['abstract'] = pdf_text[:8000]
+            # Provide consistent fields for downstream logging/UI
+            if not target.get('id'):
+                target['id'] = 'pdf_direct'
+            target.setdefault('score', 1.0)  # Give a non-zero placeholder so user sees "ranked"
+            target['source'] = 'pdf_fetch'
             if context:
                 context[0] = target
             else:
@@ -121,4 +126,10 @@ def handle_summarize_query(raw_query: str, top_k: int) -> Tuple[str, List[Dict[s
             summary = summarize_from_text(target.get('title',''), pdf_text)
         else:
             summary = "Unable to fetch abstract or PDF. Provide a direct PDF URL or ensure paper exists in index."
+    # If we only got a single context doc (e.g. PDF fetched) the reranker had no effect; if >1 try a light second-pass rerank
+    try:
+        if context and len(context) > 1:
+            context = rerank_with_cohere(cleaned or raw_query, context, top_k=min(top_k, len(context)))
+    except Exception:
+        pass
     return summary, context

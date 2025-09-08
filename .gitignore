@@ -14,3 +14,4 @@ test/
 # OS junk
 .DS_Store
 ingestion/__pycache__/
+minio/

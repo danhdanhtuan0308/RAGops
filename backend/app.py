@@ -6,8 +6,25 @@ logic here, move it into an appropriate module under rag_app/.
 from __future__ import annotations
 
 from datetime import datetime
+import time
+import uuid
 from typing import Dict, Any, List
 import logging
+import json
+
+# --- ECS Logging Setup -----------------------------------------------------
+try:
+    import ecs_logging  
+
+    _ecs_handler = logging.StreamHandler()
+    _ecs_handler.setFormatter(ecs_logging.StdlibFormatter())
+    root_logger = logging.getLogger()
+    # Replace any existing default handlers (e.g., from previous basicConfig)
+    root_logger.handlers = [_ecs_handler]
+    root_logger.setLevel(logging.INFO)
+except Exception:  # pragma: no cover
+    # Fallback to simple logging if ecs_logging is not available
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s")
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pymilvus import utility, Collection
@@ -29,13 +46,87 @@ from rag_app.llm import handle_summarize_query, generate_answer
 from rag_app.eval import evaluate_response
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
 logger = logging.getLogger(__name__)
 
+
+# --- Helper for structured RAG event logging ---------------------------------
+def log_rag_event(kind: str, rag_payload: dict):
+    """Log a RAG event with ECS-compatible structure.
+
+    kind: short message string (e.g. 'rag.query.answer') becomes the @message
+    rag_payload: dict placed under top-level 'rag' key so Filebeat decode_json_fields
+                 can flatten / index. Avoid dotted keys to keep structure explicit.
+    """
+    event_doc = {
+        "event": {"dataset": "ragops.backend.query"},
+        "message": kind,  # kept for stdout JSON (Filebeat parses)
+        "rag": rag_payload,
+    }
+    # Raw JSON line (robust ingestion even if logging handlers change)
+    try:
+        print(json.dumps(event_doc), flush=True)
+    except Exception:  # pragma: no cover
+        pass
+    # Also send via logger for local dev observability
+    try:
+        # Remove 'message' field for logger extra to avoid clash with LogRecord attributes
+        extra_doc = {k: v for k, v in event_doc.items() if k != "message"}
+        logger.info(kind, extra=extra_doc)
+    except Exception:  # pragma: no cover
+        logger.debug("Failed to emit RAG log via logger", exc_info=True)
+
 app = FastAPI(title="Research Paper RAG System")
+
+# ---------------- HTTP Request Logging Middleware (no re-ingestion impact) -------------
+@app.middleware("http")
+async def log_http_requests(request, call_next):  # pragma: no cover (runtime concern)
+    start = time.time()
+    request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
+    path = request.url.path
+    method = request.method
+    client = getattr(request.client, "host", None)
+    try:
+        response = await call_next(request)
+        status = response.status_code
+        duration_ms = round((time.time() - start) * 1000, 2)
+        event_doc = {
+            "event": {"dataset": "ragops.backend.http"},
+            "message": "http.request",
+            "http": {
+                "request": {"id": request_id, "method": method, "path": path},
+                "response": {"status_code": status, "duration_ms": duration_ms},
+            },
+            "client": {"ip": client},
+            "service": {"name": "ragops-backend"},
+        }
+        try:
+            print(json.dumps(event_doc), flush=True)
+        except Exception:
+            pass
+        # Avoid 'message' overwrite in logging extra
+        extra_doc = {k: v for k, v in event_doc.items() if k != "message"}
+        logger.info("http.request", extra=extra_doc)
+        return response
+    except Exception as exc:  # noqa
+        duration_ms = round((time.time() - start) * 1000, 2)
+        event_doc = {
+            "event": {"dataset": "ragops.backend.http"},
+            "message": "http.request.error",
+            "error": {"type": exc.__class__.__name__, "message": str(exc)},
+            "http": {
+                "request": {"id": request_id, "method": method, "path": path},
+                "response": {"status_code": 500, "duration_ms": duration_ms},
+            },
+            "client": {"ip": client},
+            "service": {"name": "ragops-backend"},
+        }
+        try:
+            print(json.dumps(event_doc), flush=True)
+        except Exception:
+            pass
+    extra_doc = {k: v for k, v in event_doc.items() if k != "message"}
+    logger.exception("http.request.error", extra=extra_doc)
+    raise
 
 # Simple in-memory ingestion tracking (could be replaced by Redis or DB if needed)
 ingestion_state: Dict[str, Any] = {
@@ -46,6 +137,36 @@ ingestion_state: Dict[str, Any] = {
     "ended_at": None,
     "error": None,
 }
+
+# On startup try to reflect existing Milvus collection count into ingestion_state
+try:  # pragma: no cover - defensive
+    connect_to_milvus()
+    if utility.has_collection(config.COLLECTION_NAME):
+        existing_collection = Collection(config.COLLECTION_NAME)
+        existing = existing_collection.num_entities
+        ingestion_state["inserted"] = existing
+        ingestion_state["total"] = existing
+except Exception:
+    pass
+
+
+@app.on_event("startup")
+async def _init_ingestion_counts():  # pragma: no cover
+    """Populate ingestion_state with existing Milvus entity count at startup (post Milvus readiness)."""
+    try:
+        connect_to_milvus()
+        if utility.has_collection(config.COLLECTION_NAME):
+            collection = Collection(config.COLLECTION_NAME)
+            n = collection.num_entities
+            ingestion_state["inserted"] = n
+            ingestion_state["total"] = n
+    except Exception:
+        logger.warning("Startup ingestion count init failed", exc_info=True)
+    # Normalize uvicorn loggers to propagate to root ECS handler
+    for _name in ["uvicorn", "uvicorn.error", "uvicorn.access"]:
+        _l = logging.getLogger(_name)
+        _l.handlers = []  # remove uvicorn's default plain handlers
+        _l.propagate = True
 
 
 def _background_ingest(df):
@@ -99,6 +220,8 @@ async def get_ingest_status():
     return ingestion_state
 
 
+
+
 @app.post("/query", response_model=QueryResponse)
 async def query_papers(request: QueryRequest):
     """Perform RAG query or summarization (if query begins with 'summarize')."""
@@ -108,6 +231,22 @@ async def query_papers(request: QueryRequest):
         if q.lower().startswith("summarize"):
             summary_text, context = handle_summarize_query(q, top_k=request.top_k)
             evaluation = evaluate_response(request.query, summary_text, context)
+            log_rag_event(
+                "rag.query.summary",
+                {
+                    "mode": "summarize",
+                    "query": request.query,
+                    "top_k": request.top_k,
+                    "answer_preview": (summary_text or "")[:200],
+                    "answer_length": len(summary_text or ""),
+                    "papers": {"count": len(context or [])},
+                    "ranking": [
+                        {"rank": i + 1, "id": p.get("id", ""), "score": p.get("score", 0.0)}
+                        for i, p in enumerate(context or [])
+                    ],
+                    "eval": evaluation if isinstance(evaluation, dict) else {},
+                },
+            )
             papers_models: List[ResearchPaperResult] = [
                 ResearchPaperResult(
                     id=p.get("id", ""),
@@ -149,6 +288,29 @@ async def query_papers(request: QueryRequest):
         reranked = rerank_with_cohere(request.query, raw_papers, top_k=request.top_k)
         answer = generate_answer(request.query, reranked)
         evaluation = evaluate_response(request.query, answer, reranked)
+        log_rag_event(
+            "rag.query.answer",
+            {
+                "mode": "rag",
+                "query": request.query,
+                "top_k": request.top_k,
+                "answer_preview": (answer or "")[:200],
+                "answer_length": len(answer or ""),
+                "papers": {"count": len(reranked or [])},
+                "ranking": [
+                    {
+                        "rank": i + 1,
+                        "id": p.get("id", ""),
+                        "cohere_score": p.get("score", 0.0),
+                    }
+                    for i, p in enumerate(reranked or [])
+                ],
+                "raw_scores": {"sample": [
+                    {"id": p.get("id", ""), "score": p.get("score", 0.0)} for p in (raw_papers[:5] or [])
+                ]},
+                "eval": evaluation if isinstance(evaluation, dict) else {},
+            },
+        )
         papers_models = [
             ResearchPaperResult(
                 id=p.get("id", ""),

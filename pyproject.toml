@@ -22,4 +22,5 @@ dependencies = [
     "fastapi>=0.111.0",
     "uvicorn[standard]>=0.30.0",
     "python-dotenv>=1.0.1",
+    "ecs-logging>=2.2.0",
 ]

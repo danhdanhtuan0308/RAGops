@@ -85,6 +85,12 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ragops-backend
+    labels:
+      co.elastic.logs/enabled: "true"
+      co.elastic.logs/json.enabled: "true"
+      co.elastic.logs/json.add_error_key: "true"
+      co.elastic.logs/json.overwrite_keys: "true"
+      co.elastic.logs/json.keys_under_root: "true"
     environment:
       - MILVUS_HOST=milvus
       - MILVUS_PORT=19530

@@ -1,0 +1,57 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+      templates:
+        - condition:
+            equals:
+              docker.container.labels.co.elastic.logs/enabled: "true"
+          config:
+            - type: container
+              paths:
+                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+              processors:
+                - decode_json_fields:
+                    fields: ["message"]
+                    target: ""
+                    overwrite_keys: true
+                    add_error_key: true
+                - add_fields:
+                    when:
+                      regexp:
+                        message: 'rag\\.query\\.(summary|answer)'
+                    target: event
+                    fields:
+                      dataset: ragops.backend.query
+                - add_fields:
+                    when:
+                      regexp:
+                        message: 'http.request'
+                    target: event
+                    fields:
+                      dataset: ragops.backend.http
+                - add_fields:
+                    target: service
+                    fields:
+                      name: ragops-backend
+
+processors:
+  - add_host_metadata: {}
+  - add_docker_metadata: {}
+  - add_cloud_metadata: {}
+  - drop_fields:
+      fields: ["host.hostname"]
+      ignore_missing: true
+
+setup.ilm.enabled: false
+setup.template.enabled: true
+setup.template.name: ragops-backend
+setup.template.pattern: ragops-backend-*
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  index: ragops-backend-%{+yyyy.MM.dd}
+
+logging.level: info
+logging.to_files: false
+logging.to_stderr: true
