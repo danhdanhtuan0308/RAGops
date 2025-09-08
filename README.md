@@ -63,7 +63,7 @@ Maybe :
 
 #### Example Query & Response
 
-## Data Ingestion from Google Big Query into Milvus 
+#### Data Ingestion from Google Big Query into Milvus 
 
 This is an example :
 ![alt text](images/milvus.png)
