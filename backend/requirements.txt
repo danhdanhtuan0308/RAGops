@@ -12,7 +12,6 @@ httpx==0.27.0
 pydantic==1.10.15
 scikit-learn==1.4.2
 tenacity==8.2.3
-langchain==0.0.266
 pymupdf==1.24.9
 numpy==1.26.4
 ecs-logging==2.1.0

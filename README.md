@@ -275,3 +275,17 @@ Collecting logs from RAG-system (query , LLM-as-judge scoring , cohere re-ranker
 ![alt text](images/kibana1.png)
 
 ![alt text](images/kibana2.png)
+
+
+### Sematic Cache ( Redis ) 
+
+#### Verify if the cache hit 
+In the image below, The first query tooks around 39s , the second query take around 9 second, the third query takes 4.8s and it keeps reducing the time . The reason it is not ms second because it has to go through the eval response in the LLM as judge if we remove that it able to achieve the ms speed. 
+
+
+![alt text](images/verify-redis.png)
+
+### Localhost Redis 
+
+![alt text](images/localhost-redis.png)
+

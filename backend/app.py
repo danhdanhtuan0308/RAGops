@@ -40,8 +40,7 @@ from rag_app.db import (
 from rag_app.retrieval import search_papers, rerank_with_cohere
 from rag_app.llm import handle_summarize_query, generate_answer
 from rag_app.eval import evaluate_response
-# Note: import cache implementations lazily inside _make_sem_cache to avoid
-# failing app startup if optional deps (like redis) are missing at build time.
+# Note: import the cache lazily so failures don't break app startup.
 
 
 logger = logging.getLogger(__name__)
@@ -83,24 +82,12 @@ class _NoCache:
         return None
 
 def _make_sem_cache():
-    impl = os.getenv("SEM_CACHE_IMPL", "simple").lower()
-    if impl == "lc":
-        try:
-            from rag_app.sem_cache_lc import LCSemanticCache  # lazy import
-            return LCSemanticCache()
-        except Exception as _e:  # pragma: no cover
-            logger.warning("LC semantic cache init failed, falling back to simple: %s", _e)
-            try:
-                from rag_app.sem_cache import SemanticCache  # lazy import
-                return SemanticCache()
-            except Exception:
-                return _NoCache()
-    # default: simple exact-match cache
+    # Single implementation: simple Redis-backed semantic cache
     try:
         from rag_app.sem_cache import SemanticCache  # lazy import
         return SemanticCache()
     except Exception as _e:  # pragma: no cover
-        logger.warning("Simple semantic cache init failed, disabling cache: %s", _e)
+        logger.warning("Semantic cache init failed, disabling cache: %s", _e)
         return _NoCache()
 
 sem_cache = _make_sem_cache()
