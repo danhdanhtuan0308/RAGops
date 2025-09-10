@@ -24,3 +24,5 @@ OPENAI_EMBED_RETRY_BASE_SLEEP = float(os.getenv("OPENAI_EMBED_RETRY_BASE_SLEEP",
 PROJECT_ID = "ragops"
 DATASET_ID = "Research_paper"
 TABLE_ID = "final_table"
+
+# (Removed dynamic evaluation model configuration; using fixed model in eval.py)

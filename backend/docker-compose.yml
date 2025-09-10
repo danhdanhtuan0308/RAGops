@@ -94,6 +94,9 @@ services:
     environment:
       - MILVUS_HOST=milvus
       - MILVUS_PORT=19530
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SEM_CACHE_THRESHOLD=0.9
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - COHERE_API_KEY=${COHERE_API_KEY}
       - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-credentials.json
@@ -104,11 +107,40 @@ services:
       - "3030:8000"
     depends_on:
       - "milvus"
+      - "redis"
     networks:
       - ragops-network
     restart: on-failure
     command: uvicorn app:app --host 0.0.0.0 --port 8000
 
+  # Redis for semantic caching
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: ragops-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-stack-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - ragops-network
+
+  # RedisInsight UI for browsing Redis locally at http://localhost:5540
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: ragops-redisinsight
+    ports:
+      - "5540:5540"
+    environment:
+      - RI_AUTH_ENABLED=false
+    depends_on:
+      - redis
+    networks:
+      - ragops-network
+
 networks:
   ragops-network:
     driver: bridge
+
+volumes:
+  redis-data:

@@ -1,18 +1,14 @@
-"""FastAPI entrypoint (CLEAN) – business logic lives in rag_app modules.
-
-This file is intentionally minimal. If you find yourself adding complex
-logic here, move it into an appropriate module under rag_app/.
-"""
 from __future__ import annotations
 
 from datetime import datetime
+import os
 import time
 import uuid
 from typing import Dict, Any, List
 import logging
 import json
 
-# --- ECS Logging Setup -----------------------------------------------------
+# ECS Logging Setup 
 try:
     import ecs_logging  
 
@@ -44,12 +40,14 @@ from rag_app.db import (
 from rag_app.retrieval import search_papers, rerank_with_cohere
 from rag_app.llm import handle_summarize_query, generate_answer
 from rag_app.eval import evaluate_response
+# Note: import cache implementations lazily inside _make_sem_cache to avoid
+# failing app startup if optional deps (like redis) are missing at build time.
 
 
 logger = logging.getLogger(__name__)
 
 
-# --- Helper for structured RAG event logging ---------------------------------
+# --- Helper for structured RAG event logging 
 def log_rag_event(kind: str, rag_payload: dict):
     """Log a RAG event with ECS-compatible structure.
 
@@ -77,7 +75,37 @@ def log_rag_event(kind: str, rag_payload: dict):
 
 app = FastAPI(title="Research Paper RAG System")
 
-# ---------------- HTTP Request Logging Middleware (no re-ingestion impact) -------------
+# Lazily/defensively initialize semantic cache so failures don't break app startup
+class _NoCache:
+    def get(self, *_args, **_kwargs):
+        return None
+    def set(self, *_args, **_kwargs):
+        return None
+
+def _make_sem_cache():
+    impl = os.getenv("SEM_CACHE_IMPL", "simple").lower()
+    if impl == "lc":
+        try:
+            from rag_app.sem_cache_lc import LCSemanticCache  # lazy import
+            return LCSemanticCache()
+        except Exception as _e:  # pragma: no cover
+            logger.warning("LC semantic cache init failed, falling back to simple: %s", _e)
+            try:
+                from rag_app.sem_cache import SemanticCache  # lazy import
+                return SemanticCache()
+            except Exception:
+                return _NoCache()
+    # default: simple exact-match cache
+    try:
+        from rag_app.sem_cache import SemanticCache  # lazy import
+        return SemanticCache()
+    except Exception as _e:  # pragma: no cover
+        logger.warning("Simple semantic cache init failed, disabling cache: %s", _e)
+        return _NoCache()
+
+sem_cache = _make_sem_cache()
+
+# Getting logs from https request
 @app.middleware("http")
 async def log_http_requests(request, call_next):  # pragma: no cover (runtime concern)
     start = time.time()
@@ -229,7 +257,26 @@ async def query_papers(request: QueryRequest):
         q = request.query.strip()
         # Summarization mode
         if q.lower().startswith("summarize"):
-            summary_text, context = handle_summarize_query(q, top_k=request.top_k)
+            # Try semantic cache first for summarize queries
+            cached = None
+            try:
+                cached = sem_cache.get(request.query)
+            except Exception:
+                cached = None
+            if cached:
+                summary_text = cached.get("answer", "")
+                context = cached.get("papers", [])
+                log_rag_event(
+                    "rag.cache.hit",
+                    {
+                        "mode": "summarize",
+                        "query": request.query,
+                        "top_k": request.top_k,
+                        "papers": {"count": len(context or [])},
+                    },
+                )
+            else:
+                summary_text, context = handle_summarize_query(q, top_k=request.top_k)
             evaluation = evaluate_response(request.query, summary_text, context)
             log_rag_event(
                 "rag.query.summary",
@@ -272,6 +319,12 @@ async def query_papers(request: QueryRequest):
                 if summary_text
                 else ""
             )
+            # Store summarize result in semantic cache for subsequent hits
+            try:
+                if summary_text:
+                    sem_cache.set(request.query, summary_text, context or [])
+            except Exception:
+                pass
             return QueryResponse(
                 query=request.query,
                 answer=concise,
@@ -282,12 +335,37 @@ async def query_papers(request: QueryRequest):
             )
 
         # Standard RAG mode
-        raw_papers = search_papers(request.query, top_k=30)
-        if not raw_papers:
-            raise HTTPException(status_code=404, detail="No relevant papers found")
-        reranked = rerank_with_cohere(request.query, raw_papers, top_k=request.top_k)
-        answer = generate_answer(request.query, reranked)
+        # First: semantic cache lookup; if present, skip expensive retrieval/rerank
+        cached = None
+        try:
+            cached = sem_cache.get(request.query)
+        except Exception:
+            cached = None
+        if cached:
+            answer = cached.get("answer", "")
+            reranked = cached.get("papers", [])
+            log_rag_event(
+                "rag.cache.hit",
+                {
+                    "mode": "rag",
+                    "query": request.query,
+                    "top_k": request.top_k,
+                    "papers": {"count": len(reranked or [])},
+                },
+            )
+        else:
+            raw_papers = search_papers(request.query, top_k=30)
+            if not raw_papers:
+                raise HTTPException(status_code=404, detail="No relevant papers found")
+            reranked = rerank_with_cohere(request.query, raw_papers, top_k=request.top_k)
+            answer = generate_answer(request.query, reranked)
         evaluation = evaluate_response(request.query, answer, reranked)
+        # Save to semantic cache only on successful evaluation
+        try:
+            if answer:
+                sem_cache.set(request.query, answer, reranked)
+        except Exception:
+            pass
         log_rag_event(
             "rag.query.answer",
             {
