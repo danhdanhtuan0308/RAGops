@@ -9,3 +9,4 @@
 - **Answer Generation**: Synthesizes information with OpenAI's GPT-4.1
 - **Evaluation**: Automatic evaluation of responses for hallucination, truthfulness, accuracy, and relevancy
 - **Metadata Enrichment**: Extracts additional paper metadata from URLs 
+- **Implement Cache** : Saving cost + time 

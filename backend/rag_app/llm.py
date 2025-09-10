@@ -25,7 +25,7 @@ Guidelines: cite papers, ground statements, be concise, no fabrication.
     user_prompt = f"Query: {query}\n\nPapers:\n{context}\nProvide answer." 
     try:
         resp = openai.ChatCompletion.create(
-            model="gpt-4.1",
+            model="gpt-4.1-mini",
             messages=[{"role":"system","content":system_prompt},{"role":"user","content":user_prompt}],
             temperature=0.2,
             max_tokens=1000
@@ -68,15 +68,24 @@ def extract_arxiv_or_pdf_url(text: str) -> Optional[str]:
 
 
 def summarize_from_text(title: str, raw: str) -> str:
-    sys = """You are an expert multi-disciplinary research assistant. Summarize content grounded only on the provided text."""
-    snippet = raw[:12000]
-    user = f"TITLE: {title}\nCONTENT:\n{snippet}\nSummary:" 
+    sys = (
+        "You are an expert research assistant. Write a precise, factual, and comprehensive summary strictly grounded in the provided text. "
+        "Target length: 450–600 words. Include quantitative details (sample sizes, dataset years, number of experiments, metrics with values, confidence intervals), "
+        "clearly name key methods/algorithms and describe their core steps or components, and highlight empirical results. Do not fabricate numbers."
+    )
+    snippet = raw[:16000]
+    user = (
+        f"TITLE: {title}\n"
+        "Required sections (use short headers): Problem, Method/Algorithm, Data & Setup, Key Results (with numbers), Limitations, Takeaways.\n"
+        f"CONTENT:\n{snippet}\n"
+        "Return only the summary."
+    )
     try:
         resp = openai.ChatCompletion.create(
-            model="gpt-4.1",
+            model="gpt-4.1-mini",
             messages=[{"role":"system","content":sys},{"role":"user","content":user}],
-            max_tokens=450,
-            temperature=0.25
+            max_tokens=900,
+            temperature=0.2
         )
         return resp['choices'][0]['message']['content'].strip()
     except Exception as e:  # noqa
@@ -90,10 +99,25 @@ def generate_summary(paper: Dict[str, Any], context_papers: List[Dict[str, Any]]
     for i,p in enumerate(context_papers[:2]):
         if p.get('id') == paper.get('id'): continue
         other += f"\nContext {i+1}: {p.get('title','')}\nAbstract: {p.get('abstract','')[:800]}\n"
-    sys = """Expert research assistant. Produce precise, math-aware summary. Sections: Problem, Method, Results, Significance, Limitations & Open Questions, Key Parameters & Notation (table)."""
-    user = f"TITLE: {main_title}\nABSTRACT:{main_abs}\nCONTEXT:{other or 'None'}\nReturn summary only." 
+    sys = (
+        "You are an expert research assistant. Produce a precise, math-aware summary grounded in the provided abstract/context. "
+        "Target length: 450–600 words. Include any quantitative details mentioned (e.g., number of datasets, experiments, performance metrics), "
+        "name the core method/algorithm and outline its key steps/components, and state main results. Do not invent facts beyond the text."
+    )
+    user = (
+        f"TITLE: {main_title}\n"
+        f"ABSTRACT: {main_abs}\n"
+        f"CONTEXT: {other or 'None'}\n"
+        "Required sections: Problem, Method/Algorithm, Data & Setup, Key Results (with numbers if present), Limitations, Takeaways.\n"
+        "Return only the summary."
+    ) 
     try:
-        resp = openai.ChatCompletion.create(model="gpt-4.1",messages=[{"role":"system","content":sys},{"role":"user","content":user}],temperature=0.3,max_tokens=400)
+        resp = openai.ChatCompletion.create(
+            model="gpt-4.1-mini",
+            messages=[{"role":"system","content":sys},{"role":"user","content":user}],
+            temperature=0.25,
+            max_tokens=900
+        )
         return resp['choices'][0]['message']['content'].strip()
     except Exception:
         return "Error generating summary."
@@ -108,22 +132,23 @@ def handle_summarize_query(raw_query: str, top_k: int) -> Tuple[str, List[Dict[s
     context = rerank_with_cohere(cleaned or raw_query, initial, top_k=top_k) if initial else []
     target = context[0] if context else {"title": cleaned, "abstract": ""}
     abstract = target.get('abstract','')
-    if abstract and len(abstract.strip()) > 40:
-        summary = generate_summary(target, context)
+    # Prefer PDF text (more detailed, includes numbers) when a URL is provided
+    pdf_text = fetch_pdf_text(url) if url else None
+    if pdf_text:
+        target['abstract'] = pdf_text[:8000]
+        # Provide consistent fields for downstream logging/UI
+        if not target.get('id'):
+            target['id'] = 'pdf_direct'
+        target.setdefault('score', 1.0)
+        target['source'] = 'pdf_fetch'
+        if context:
+            context[0] = target
+        else:
+            context = [target]
+        summary = summarize_from_text(target.get('title',''), pdf_text)
     else:
-        pdf_text = fetch_pdf_text(url) if url else None
-        if pdf_text:
-            target['abstract'] = pdf_text[:8000]
-            # Provide consistent fields for downstream logging/UI
-            if not target.get('id'):
-                target['id'] = 'pdf_direct'
-            target.setdefault('score', 1.0)  # Give a non-zero placeholder so user sees "ranked"
-            target['source'] = 'pdf_fetch'
-            if context:
-                context[0] = target
-            else:
-                context = [target]
-            summary = summarize_from_text(target.get('title',''), pdf_text)
+        if abstract and len(abstract.strip()) > 40:
+            summary = generate_summary(target, context)
         else:
             summary = "Unable to fetch abstract or PDF. Provide a direct PDF URL or ensure paper exists in index."
     # If we only got a single context doc (e.g. PDF fetched) the reranker had no effect; if >1 try a light second-pass rerank

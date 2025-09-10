@@ -5,15 +5,17 @@
 ![alt text](images/architecture.png)
 
 
+
 ### Continuous improvement
 
 Future Improvement : 
-- Sematic Caching ( Redis ) 
-- Deploy on GKE or Cloud-Run ( only for the RAGsystem , not for others services ) 
 - prometheus direct scraping metrics from application and Gafana to monitoring
 - Github Action for CICD (write function test and Ingeration testing ) 
+- Deploy on GKE or Cloud-Run ( only for the RAGsystem , not for others services ) 
+
 
 Maybe : 
+- Adding nGinx as lightweight API gateway
 - LLM Graudrails 
 - Load-balancing and Rarelimit design 
 - Terraform for automate Google Cloud deployment 
