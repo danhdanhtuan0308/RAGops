@@ -9,7 +9,6 @@
 ### Continuous improvement
 
 Future Improvement : 
-- prometheus direct scraping metrics from application and Gafana to monitoring
 - Github Action for CICD (write function test and Ingeration testing ) 
 - Deploy on GKE or Cloud-Run ( only for the RAGsystem , not for others services ) 
 
@@ -303,3 +302,9 @@ Visulization Application such as CPU usage , Cache-hit , Total Request , RPS , .
 
 ![alt text](images/Grafana.png)
 
+### CICD Pipeline 
+
+- Unit Test : 
+* Testing for no duplicate
+* Testing for chunking : Make sure it is rowbased chunking 
+* Make sure Cohere got K = 10 

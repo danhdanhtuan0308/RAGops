@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing import List, Dict, Any
 import logging
+import os
 from tenacity import retry, stop_after_attempt, wait_exponential
 from pymilvus import Collection, utility
 import cohere
@@ -87,6 +88,12 @@ def rerank_with_cohere(query: str, papers: List[Dict[str, Any]], top_k: int = 10
     if not papers:
         logger.info("rerank.skip", extra={"reason": "no_papers", "rag.query": query, "rag.top_k": top_k})
         return []
+    # Allow enforcing a specific K via environment (e.g., COHERE_TOP_K=1)
+    try:
+        forced_k = int(os.getenv("COHERE_TOP_K", str(top_k)))
+    except Exception:
+        forced_k = top_k
+    top_k = max(1, min(forced_k, len(papers)))
     docs = []
     for paper in papers:
         doc_text = f"Title: {paper.get('title', '')}\nAuthors: {paper.get('authors', '')}\nAbstract: {paper.get('abstract', '')}"

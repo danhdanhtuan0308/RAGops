@@ -97,6 +97,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - SEM_CACHE_THRESHOLD=0.9
+      - COHERE_TOP_K=1
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - COHERE_API_KEY=${COHERE_API_KEY}
       - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-credentials.json

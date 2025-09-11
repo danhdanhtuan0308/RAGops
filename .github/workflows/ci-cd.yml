@@ -1,0 +1,52 @@
+name: CI-CD
+
+on:
+  push:
+  branches: [ main, RAGops ]
+  pull_request:
+  branches: [ main, RAGops ]
+  workflow_dispatch: {}
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install pytest
+      - name: Run unit and integration tests
+        env:
+          OPENAI_API_KEY: test-key
+          COHERE_API_KEY: test-key
+        run: |
+          pytest
+
+  deploy-local:
+    if: github.ref == 'refs/heads/main'
+    needs: ci
+    runs-on: self-hosted  # requires your own runner on the localhost target
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & restart backend via docker compose
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'set-me' }}
+          COHERE_API_KEY: ${{ secrets.COHERE_API_KEY || 'set-me' }}
+        run: |
+          cd backend
+          docker compose -f docker-compose.yml build backend
+          docker compose -f docker-compose.yml up -d etcd minio milvus redis backend
+          # Wait briefly for Milvus health
+          for i in {1..10}; do
+            curl -sf http://localhost:9091/api/v1/health && break || sleep 3;
+          done
+          # Smoke test: wait up to ~30s and check /status
+          for i in {1..10}; do
+            curl -sf http://localhost:3030/status && break || sleep 3;
+          done
+          curl -s http://localhost:3030/status | jq .status | grep -q '"ok"'

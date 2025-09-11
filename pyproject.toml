@@ -25,4 +25,5 @@ dependencies = [
     "ecs-logging>=2.2.0",
     "redis>=5.0.0",
     # removed langchain, langchain-community, redisvl (not used in production)
+    "pytest>=8.4.2",
 ]

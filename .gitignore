@@ -10,7 +10,6 @@ backend/minio/
 backend/etcd/
 *.log
 # Notebooks & testing file
-test/
 # OS junk
 .DS_Store
 ingestion/__pycache__/
