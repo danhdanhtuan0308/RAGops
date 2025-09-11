@@ -303,6 +303,7 @@ Visulization Application such as CPU usage , Cache-hit , Total Request , RPS , .
 ![alt text](images/Grafana.png)
 
 ### CICD Pipeline 
+
 #### Unit Test : 
 * Testing for no duplicate
 * Testing for chunking : Make sure it is rowbased chunking 
@@ -310,5 +311,20 @@ Visulization Application such as CPU usage , Cache-hit , Total Request , RPS , .
 * Testing for accuracy ( Recall , Precision )
 
 #### Intergration test :
-* Testing for OPEAI_API_KEY and COHERE RE_RANKER_API 
+* Testing for OPEAI_API_KEY and COHERE_API_KEY
 * Testing for Library 
+
+#### Deployment :
+* Setup for github-runner for local deployment : 
+
+![alt text](images/runners.png)
+
+
+* Auto deployment on Localhost using Github runners 
+
+
+![alt text](images/CICD.png)
+
+
+### Cloud-Run 
+
