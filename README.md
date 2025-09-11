@@ -8,9 +8,6 @@
 
 ### Continuous improvement
 
-Future Improvement : 
-- Github Action for CICD (write function test and Ingeration testing ) 
-- Deploy on GKE or Cloud-Run ( only for the RAGsystem , not for others services ) 
 
 
 Maybe : 
