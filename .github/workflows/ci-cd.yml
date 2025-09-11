@@ -18,20 +18,21 @@ jobs:
       - uses: actions/checkout@v4
         with:
           clean: false
+          path: _workspace
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt
+          pip install -r _workspace/backend/requirements.txt
           pip install pytest
       - name: Run unit and integration tests
         env:
           OPENAI_API_KEY: test-key
           COHERE_API_KEY: test-key
         run: |
-          pytest -q
+          pytest -q _workspace/backend/tests
 
   deploy-local:
     if: "github.ref == 'refs/heads/main'"
@@ -41,12 +42,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           clean: false
+          path: _workspace
       - name: Build & restart backend via docker compose
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'set-me' }}
           COHERE_API_KEY: ${{ secrets.COHERE_API_KEY || 'set-me' }}
         run: |
-          cd backend
+          cd _workspace/backend
           docker compose -f docker-compose.yml build backend
           docker compose -f docker-compose.yml up -d etcd minio milvus redis backend
           # Wait briefly for Milvus health
@@ -57,4 +59,8 @@ jobs:
           for i in {1..10}; do
             curl -sf http://localhost:3030/status && break || sleep 3;
           done
-          curl -s http://localhost:3030/status | jq .status | grep -q '"ok"'
+          # Avoid relying on jq on the self-hosted runner; check JSON with grep
+          STATUS_JSON=$(curl -s http://localhost:3030/status)
+          echo "$STATUS_JSON"
+          echo "$STATUS_JSON" | grep -Eo '"status"\s*:\s*"[^"]+"' | grep -q '"status"\s*:\s*"ok"' \
+            || { echo "Backend health check failed"; docker compose -f docker-compose.yml logs backend | tail -n 200; exit 1; }
