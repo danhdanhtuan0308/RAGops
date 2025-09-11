@@ -32,7 +32,7 @@ jobs:
           pytest -q
 
   deploy-local:
-    if: github.ref == 'refs/heads/main'
+  if: "github.ref == 'refs/heads/main'"
     needs: ci
   runs-on: self-hosted
     steps:
