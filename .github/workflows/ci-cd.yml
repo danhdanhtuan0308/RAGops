@@ -30,7 +30,7 @@ jobs:
   deploy-local:
     if: github.ref == 'refs/heads/main'
     needs: ci
-    runs-on: self-hosted  # requires your own runner on the localhost target
+    runs-on: self-hosted 
     steps:
       - uses: actions/checkout@v4
       - name: Build & restart backend via docker compose
