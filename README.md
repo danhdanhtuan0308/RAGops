@@ -303,8 +303,12 @@ Visulization Application such as CPU usage , Cache-hit , Total Request , RPS , .
 ![alt text](images/Grafana.png)
 
 ### CICD Pipeline 
-
-- Unit Test : 
+#### Unit Test : 
 * Testing for no duplicate
 * Testing for chunking : Make sure it is rowbased chunking 
 * Make sure Cohere got K = 10 
+* Testing for accuracy ( Recall , Precision )
+
+#### Intergration test :
+* Testing for OPEAI_API_KEY and COHERE RE_RANKER_API 
+* Testing for Library 
