@@ -15,7 +15,6 @@ Future Improvement :
 
 
 Maybe : 
-- Adding nGinx as lightweight API gateway
 - LLM Graudrails 
 - Load-balancing and Rarelimit design 
 - Terraform for automate Google Cloud deployment 
@@ -289,5 +288,18 @@ In the image below, The first query tooks around 39s , the second query take aro
 
 ### Localhost Redis 
 
-![alt text](images/localhost-redis.png)
+![alt text](images/localhost-redis.png) 
+
+
+
+### Prometheus 
+Scraping metrics directly form FastAPI with Prometheus Client 
+
+![alt text](images/Prometheus.png)
+
+### Grafana 
+
+Visulization Application such as CPU usage , Cache-hit , Total Request , RPS , ....
+
+![alt text](images/Grafana.png)
 

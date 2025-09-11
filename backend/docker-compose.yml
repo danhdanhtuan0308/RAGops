@@ -141,6 +141,7 @@ services:
 networks:
   ragops-network:
     driver: bridge
+    name: ragops-network
 
 volumes:
   redis-data:

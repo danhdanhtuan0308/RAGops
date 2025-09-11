@@ -7,6 +7,28 @@ import uuid
 from typing import Dict, Any, List
 import logging
 import json
+import time as _time
+
+# Prometheus metrics
+try:
+    from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
+    _METRICS_ENABLED = True
+    REQ_COUNTER = Counter("rag_requests_total", "Total /query requests", ["mode"])
+    REQ_LATENCY = Histogram("rag_request_latency_seconds", "End-to-end latency per mode", ["mode"], buckets=(0.5,1,2,4,8,16,32,64))
+    SEARCH_LATENCY = Histogram("rag_search_latency_seconds", "Milvus search latency seconds")
+    RERANK_LATENCY = Histogram("rag_rerank_latency_seconds", "Cohere rerank latency seconds")
+    ANSWER_LATENCY = Histogram("rag_answer_latency_seconds", "Answer generation latency seconds")
+    EVAL_LATENCY = Histogram("rag_eval_latency_seconds", "LLM evaluation latency seconds")
+    CACHE_HITS = Counter("rag_cache_hits_total", "Semantic cache hits", ["mode"])
+    CACHE_MISSES = Counter("rag_cache_misses_total", "Semantic cache misses", ["mode"])
+    INGEST_IN_PROGRESS = Gauge("rag_ingest_running", "Whether ingestion background task is running (0/1)")
+    PROC_CPU_PCT = Gauge("rag_process_cpu_percent", "Process CPU percent (averaged sampling)")
+    PROC_MEM_RSS_BYTES = Gauge("rag_process_memory_rss_bytes", "Resident set size in bytes")
+    PROC_MEM_VMS_BYTES = Gauge("rag_process_memory_vms_bytes", "Virtual memory size in bytes")
+    PROC_OPEN_FDS = Gauge("rag_process_open_fds", "Number of open file descriptors (Linux)" )
+    PROC_THREADS = Gauge("rag_process_threads", "Number of active threads in the process")
+except Exception:
+    _METRICS_ENABLED = False
 
 # ECS Logging Setup 
 try:
@@ -73,6 +95,42 @@ def log_rag_event(kind: str, rag_payload: dict):
         logger.debug("Failed to emit RAG log via logger", exc_info=True)
 
 app = FastAPI(title="Research Paper RAG System")
+
+# Background sampler for process resource metrics (lightweight)
+if _METRICS_ENABLED:
+    try:  # pragma: no cover
+        import psutil, threading
+        _proc = psutil.Process()
+
+        def _sample_proc_metrics():
+            # Prime CPU percent measurement (first call establishes interval)
+            try:
+                _proc.cpu_percent(interval=None)
+            except Exception:
+                pass
+            while True:
+                try:
+                    cpu = _proc.cpu_percent(interval=5.0)  # blocking sleep inside
+                    mem = _proc.memory_info()
+                    PROC_CPU_PCT.set(cpu)
+                    PROC_MEM_RSS_BYTES.set(getattr(mem, "rss", 0))
+                    PROC_MEM_VMS_BYTES.set(getattr(mem, "vms", 0))
+                    # Some platforms (macOS) may not have num_fds
+                    try:
+                        PROC_OPEN_FDS.set(_proc.num_fds())
+                    except Exception:
+                        pass
+                    try:
+                        PROC_THREADS.set(_proc.num_threads())
+                    except Exception:
+                        pass
+                except Exception:
+                    # Swallow errors to keep thread alive
+                    time.sleep(5)
+
+        threading.Thread(target=_sample_proc_metrics, name="proc-metrics", daemon=True).start()
+    except Exception:
+        logger.warning("Process metrics sampler failed to start", exc_info=True)
 
 # Lazily/defensively initialize semantic cache so failures don't break app startup
 class _NoCache:
@@ -205,6 +263,11 @@ def _background_ingest(df):
     finally:
         ingestion_state["running"] = False
         ingestion_state["ended_at"] = datetime.utcnow().isoformat()
+        if _METRICS_ENABLED:
+            try:
+                INGEST_IN_PROGRESS.set(0)
+            except Exception:
+                pass
 
 
 @app.post("/ingest", response_model=Dict[str, Any])
@@ -224,6 +287,11 @@ async def ingest_data(background_tasks: BackgroundTasks):
         if df.empty:
             raise RuntimeError("BigQuery returned no rows")
         background_tasks.add_task(_background_ingest, df)
+        if _METRICS_ENABLED:
+            try:
+                INGEST_IN_PROGRESS.set(1)
+            except Exception:
+                pass
         return {"status": "started", "total": int(len(df))}
     except Exception as e:  # noqa
         raise HTTPException(status_code=500, detail=f"Ingestion error: {e}")
@@ -250,6 +318,8 @@ async def query_papers(request: QueryRequest):
                 cached = sem_cache.get(request.query)
             except Exception:
                 cached = None
+            mode = "summarize"
+            req_start = _time.time()
             if cached:
                 summary_text = cached.get("answer", "")
                 context = cached.get("papers", [])
@@ -262,9 +332,29 @@ async def query_papers(request: QueryRequest):
                         "papers": {"count": len(context or [])},
                     },
                 )
+                if _METRICS_ENABLED:
+                    try:
+                        CACHE_HITS.labels(mode=mode).inc()
+                    except Exception:
+                        pass
             else:
+                if _METRICS_ENABLED:
+                    try:
+                        CACHE_MISSES.labels(mode=mode).inc()
+                    except Exception:
+                        pass
                 summary_text, context = handle_summarize_query(q, top_k=request.top_k)
+            if _METRICS_ENABLED:
+                try:
+                    REQ_COUNTER.labels(mode=mode).inc()
+                except Exception:
+                    pass
             evaluation = evaluate_response(request.query, summary_text, context)
+            if _METRICS_ENABLED:
+                try:
+                    REQ_LATENCY.labels(mode=mode).observe(_time.time() - req_start)
+                except Exception:
+                    pass
             log_rag_event(
                 "rag.query.summary",
                 {
@@ -328,6 +418,8 @@ async def query_papers(request: QueryRequest):
             cached = sem_cache.get(request.query)
         except Exception:
             cached = None
+        mode = "rag"
+        req_start = _time.time()
         if cached:
             answer = cached.get("answer", "")
             reranked = cached.get("papers", [])
@@ -340,13 +432,60 @@ async def query_papers(request: QueryRequest):
                     "papers": {"count": len(reranked or [])},
                 },
             )
+            if _METRICS_ENABLED:
+                try:
+                    CACHE_HITS.labels(mode=mode).inc()
+                except Exception:
+                    pass
         else:
+            if _METRICS_ENABLED:
+                try:
+                    CACHE_MISSES.labels(mode=mode).inc()
+                except Exception:
+                    pass
             raw_papers = search_papers(request.query, top_k=30)
             if not raw_papers:
                 raise HTTPException(status_code=404, detail="No relevant papers found")
+            # Measure search + rerank + answer generation latencies
+            if _METRICS_ENABLED:
+                search_start = _time.time()
             reranked = rerank_with_cohere(request.query, raw_papers, top_k=request.top_k)
+            if _METRICS_ENABLED:
+                try:
+                    SEARCH_LATENCY.observe(_time.time() - search_start)
+                except Exception:
+                    pass
+            if _METRICS_ENABLED:
+                rerank_start = _time.time()
+            # Cohere rerank already happened inside function; treat time inside above
+            if _METRICS_ENABLED:
+                try:
+                    RERANK_LATENCY.observe(_time.time() - rerank_start)
+                except Exception:
+                    pass
+            if _METRICS_ENABLED:
+                ans_start = _time.time()
             answer = generate_answer(request.query, reranked)
+            if _METRICS_ENABLED:
+                try:
+                    ANSWER_LATENCY.observe(_time.time() - ans_start)
+                except Exception:
+                    pass
+        if _METRICS_ENABLED:
+            try:
+                REQ_COUNTER.labels(mode=mode).inc()
+            except Exception:
+                pass
         evaluation = evaluate_response(request.query, answer, reranked)
+        if _METRICS_ENABLED:
+            try:
+                EVAL_LATENCY.observe( _time.time() - req_start )
+            except Exception:
+                pass
+            try:
+                REQ_LATENCY.labels(mode=mode).observe(_time.time() - req_start)
+            except Exception:
+                pass
         # Save to semantic cache only on successful evaluation
         try:
             if answer:
@@ -397,6 +536,15 @@ async def query_papers(request: QueryRequest):
         raise
     except Exception as e:  # noqa
         raise HTTPException(status_code=500, detail=f"Query error: {e}")
+
+
+# Prometheus metrics endpoint
+if _METRICS_ENABLED:
+    from fastapi import Response
+
+    @app.get("/metrics")
+    async def metrics():  # pragma: no cover
+        return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/status")
