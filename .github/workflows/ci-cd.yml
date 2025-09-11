@@ -2,9 +2,9 @@ name: CI-CD
 
 on:
   push:
-  branches: [ main, RAGops ]
+    branches: [ main, RAGops ]
   pull_request:
-  branches: [ main, RAGops ]
+    branches: [ main, RAGops ]
   workflow_dispatch: {}
 
 jobs:
