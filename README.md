@@ -1,19 +1,11 @@
-## End to End RAGops ( Not Finish ) 
+## End to End RAGops
 
 
 ### Architecture 
 
 ![alt text](images/architecture.png)
 
-
-### Continuous improvement
-
-
-
-Maybe : 
-- LLM Graudrails 
-- Load-balancing and Rarelimit design 
-- Terraform for automate Google Cloud deployment 
+ 
 
 
 ### Data-Pipeline  : Ingestion from arXiv API -> Google Cloud (data-lake) -> Google BigQuery (data-warehouse) 
