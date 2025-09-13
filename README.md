@@ -207,6 +207,11 @@ RPS, CPU, cache hits, and more.
 Local auto‑deploy via GitHub Actions runner:
 ![CI/CD](images/CICD.png)
 
+
+### Deploy on Cloud-Run 
+Local auto‑deploy via GitHub Actions runner:
+![CI/CD](images/CD-GCP.png)
+
 ---
 
 ## Cloud Run
