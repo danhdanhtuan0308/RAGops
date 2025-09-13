@@ -227,11 +227,3 @@ Deployed on Cloud Run with 100% traffic directed to the latest healthy revision.
 - Rate limits on embeddings: lower `EMBED_BATCH_SIZE`, raise retries/backoff.
 
 ---
-
-## FAQ
-- Can I run monthly ingestion automatically?
-  - Yes. Use Airflow to trigger `POST /ingest` or move the ingestion logic to a Cloud Run Job scheduled via Cloud Scheduler.
-- Do I need Redis in production?
-  - Optional. The API runs without Redis; semantic cache just won’t be used.
-- Which endpoints are available?
-  - `/status`, `/query`, `/ingest`, `/ingest/status`, `/metrics`, plus Swagger UI at `/docs`.

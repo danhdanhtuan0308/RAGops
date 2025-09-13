@@ -37,30 +37,58 @@ jobs:
   deploy-local:
     if: "github.ref == 'refs/heads/main'"
     needs: ci
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      REGION: ${{ secrets.CLOUD_RUN_REGION || 'us-central1' }}
+      SERVICE_NAME: ragops-backend
+      REPO: ragops
+      IMAGE: backend
     steps:
       - uses: actions/checkout@v4
         with:
           clean: false
           path: _workspace
-      - name: Build & restart backend via docker compose
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'set-me' }}
-          COHERE_API_KEY: ${{ secrets.COHERE_API_KEY || 'set-me' }}
+      - name: Set up gcloud auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
+      - name: Compute image tag
+        id: meta
         run: |
-          cd _workspace/backend
-          docker compose -f docker-compose.yml build backend
-          docker compose -f docker-compose.yml up -d etcd minio milvus redis backend
-          # Wait briefly for Milvus health
-          for i in {1..10}; do
-            curl -sf http://localhost:9091/api/v1/health && break || sleep 3;
-          done
-          # Smoke test: wait up to ~30s and check /status
-          for i in {1..10}; do
-            curl -sf http://localhost:3030/status && break || sleep 3;
-          done
-          # Avoid relying on jq on the self-hosted runner; check JSON with grep
-          STATUS_JSON=$(curl -s http://localhost:3030/status)
-          echo "$STATUS_JSON"
-          echo "$STATUS_JSON" | grep -Eo '"status"\s*:\s*"[^"]+"' | grep -q '"status"\s*:\s*"ok"' \
-            || { echo "Backend health check failed"; docker compose -f docker-compose.yml logs backend | tail -n 200; exit 1; }
+          IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:$GITHUB_SHA"
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
+      - name: Build and push image
+        working-directory: _workspace/backend
+        run: |
+          docker build -t "${{ steps.meta.outputs.IMAGE_URI }}" .
+          docker push "${{ steps.meta.outputs.IMAGE_URI }}"
+      - name: Deploy to Cloud Run
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
+          MILVUS_URI: ${{ secrets.MILVUS_URI }}
+          MILVUS_TOKEN: ${{ secrets.MILVUS_TOKEN }}
+          MILVUS_SECURE: ${{ secrets.MILVUS_SECURE || 'true' }}
+        run: |
+          gcloud run deploy ${SERVICE_NAME} \
+            --project ${PROJECT_ID} \
+            --region ${REGION} \
+            --image "${{ steps.meta.outputs.IMAGE_URI }}" \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8000 \
+            --cpu 2 --memory 2Gi \
+            --concurrency 20 \
+            --timeout 1800 \
+            --set-env-vars OPENAI_API_KEY=${OPENAI_API_KEY},COHERE_API_KEY=${COHERE_API_KEY},MILVUS_URI=${MILVUS_URI},MILVUS_TOKEN=${MILVUS_TOKEN},MILVUS_SECURE=${MILVUS_SECURE}
+      - name: Output service URL
+        run: |
+          URL=$(gcloud run services describe ${SERVICE_NAME} --region ${REGION} --format='value(status.url)')
+          echo "service_url=${URL}" >> $GITHUB_OUTPUT
