@@ -97,18 +97,19 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - SEM_CACHE_THRESHOLD=0.9
-      - COHERE_TOP_K=1
+      - COHERE_TOP_K=5
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - COHERE_API_KEY=${COHERE_API_KEY}
       - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-credentials.json
     volumes:
-      - .:/app
       - ./gcp-credentials.json:/app/gcp-credentials.json:ro
     ports:
       - "3030:8000"
     depends_on:
-      - "milvus"
-      - "redis"
+      milvus:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - ragops-network
     restart: on-failure

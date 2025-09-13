@@ -47,10 +47,14 @@ def _call_openai_embeddings(payload: List[str]) -> List[List[float]]:
     while True:
         try:
             if _OPENAI_NEW_CLIENT:  # New style
-                resp = _OPENAI_NEW_CLIENT.embeddings.create(model=EMBEDDING_MODEL, input=payload)
+                resp = _OPENAI_NEW_CLIENT.embeddings.create(
+                    model=EMBEDDING_MODEL,
+                    input=payload,
+                    timeout=60,
+                )
                 return [d.embedding for d in resp.data]
             elif _OPENAI_LEGACY:  # Legacy style
-                resp = _OPENAI_LEGACY.Embedding.create(model=EMBEDDING_MODEL, input=payload)
+                resp = _OPENAI_LEGACY.Embedding.create(model=EMBEDDING_MODEL, input=payload, request_timeout=60)
                 return [d["embedding"] for d in resp["data"]]
             else:
                 raise RuntimeError("OpenAI client not initialized")

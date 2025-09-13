@@ -1,3 +1,7 @@
+# Ignore GCP credentials files
+gcp-credentials.json
+backend/gcp-credentials.json
+ci-sa-key.json
 # Secrets
 .venv
 airflow/keys/

@@ -14,6 +14,12 @@ tests/
 airflow/
 logs/
 keys/
+# Local service data directories (huge)
+milvus/
+minio/
+etcd/
+# Deployment artifacts not needed in image
+deploy/
 *.ipynb_checkpoints
 **/.mypy_cache/
 **/.ruff_cache/

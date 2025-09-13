@@ -17,6 +17,11 @@ At a glance:
 
 ---
 
+### Presentation
+
+[▶️ Watch on GitHub (with audio)](https://github.com/danhdanhtuan0308/RAGops/blob/main/images/presentation.mp4) · [⬇️ Download MP4](https://raw.githubusercontent.com/danhdanhtuan0308/RAGops/main/images/presentation.mp4)
+
+
 ## Data Pipeline (arXiv → GCS → BigQuery)
 
 ### Airflow Pipeline

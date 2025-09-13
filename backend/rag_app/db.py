@@ -1,6 +1,7 @@
 """Milvus and BigQuery related functions."""
 from __future__ import annotations
 import time
+import math
 import hashlib
 import os
 import logging
@@ -93,6 +94,7 @@ def ingest_data_to_milvus(df: pd.DataFrame, ingestion_state: Dict[str, Any]):
     MILVUS_BATCH = int(os.getenv("MILVUS_BATCH", "256"))
     inserted = 0
     start_time = time.time()
+    total_batches = math.ceil(total_records / MILVUS_BATCH) if MILVUS_BATCH > 0 else 0
 
     def fetch_existing(ids_chunk: List[str]) -> set:
         if not ids_chunk:
@@ -106,6 +108,11 @@ def ingest_data_to_milvus(df: pd.DataFrame, ingestion_state: Dict[str, Any]):
             return set()
 
     for start in range(0, total_records, MILVUS_BATCH):
+        batch_idx = (start // MILVUS_BATCH) + 1
+        try:
+            logger.info(f"Ingest batch {batch_idx}/{total_batches} starting (offset {start})")
+        except Exception:
+            pass
         end = min(start + MILVUS_BATCH, total_records)
         batch_df = df.iloc[start:end].copy()
         titles = batch_df["title"].astype(str).str.slice(0, 500).tolist()
@@ -122,7 +129,11 @@ def ingest_data_to_milvus(df: pd.DataFrame, ingestion_state: Dict[str, Any]):
         embed_texts = [f"Title: {t}\nAbstract: {a}" for t, a in zip(titles, abstracts)]
         try:
             vectors = get_embeddings(embed_texts)
-        except Exception:
+        except Exception as e:
+            try:
+                logger.warning(f"Embedding failed for batch {batch_idx}, falling back to zeros: {e}")
+            except Exception:
+                pass
             vectors = [[0.0] * DIMENSION for _ in embed_texts]
         good_rows = [(i, t, a, v) for i, t, a, v in zip(ids, titles, abstracts, vectors) if len(v) == DIMENSION]
         if not good_rows:
@@ -132,11 +143,19 @@ def ingest_data_to_milvus(df: pd.DataFrame, ingestion_state: Dict[str, Any]):
         try:
             collection.insert(data)
             inserted += len(ins_ids)
-        except Exception:
+        except Exception as e:
+            try:
+                logger.warning(f"Milvus insert failed on batch {batch_idx}: {e}")
+            except Exception:
+                pass
             continue
         if inserted % 1000 < len(ins_ids):
             collection.flush()
         if ingestion_state.get("running"):
             ingestion_state["inserted"] = inserted
+        try:
+            logger.info(f"Ingest batch {batch_idx}/{total_batches} done; cumulative inserted={inserted}")
+        except Exception:
+            pass
     collection.flush()
     return inserted

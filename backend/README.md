@@ -49,3 +49,8 @@ curl -s "$SERVICE_URL/status" | jq .
 - The container binds to `$PORT` automatically as required by Cloud Run.
 - If Redis/Milvus are not available, the app will still start; vector search will return empty results and semantic cache will be disabled gracefully.
 - To use Secret Manager instead of inline env vars, create secrets and bind them as env vars via `gcloud run deploy --set-secrets OPENAI_API_KEY=projects/$PROJECT_ID/secrets/OPENAI_API_KEY:latest,...`.
+
+### Local Docker compose tips
+- Ensure the BigQuery credential file is mounted as a file, not a folder. The compose file binds `./gcp-credentials.json:/app/gcp-credentials.json:ro` and sets `GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-credentials.json`.
+- Backend now waits for Milvus health (`depends_on.condition: service_healthy`), reducing early connection retries.
+- If ingestion appears to stall, check logs: `docker compose logs -f backend`. You should see batch progress like `Ingest batch X/Y...`. OpenAI embedding calls have a 60s timeout and retries; sustained failures will fall back to zero vectors so ingestion continues.
