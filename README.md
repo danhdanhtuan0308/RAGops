@@ -232,3 +232,10 @@ Deployed on Cloud Run with 100% traffic directed to the latest healthy revision.
 - Rate limits on embeddings: lower `EMBED_BATCH_SIZE`, raise retries/backoff.
 
 ---
+
+## Missing piece , need to improve 
+
+- Build a golden-dataset for evaluation 
+- Split each services in each container and using k8s to manage those 
+- Rare-limit design and Load balancer 
+
