@@ -49,21 +49,14 @@ jobs:
         with:
           clean: false
           path: _workspace
-      - name: Auth via Workload Identity Federation
-        if: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER && secrets.GCP_SERVICE_ACCOUNT && !secrets.GCP_SA_KEY }}
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      - name: Auth via Service Account Key
-        if: ${{ secrets.GCP_SA_KEY && (!secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || !secrets.GCP_SERVICE_ACCOUNT) }}
+      - name: Authenticate to Google Cloud
+        id: gcp-auth
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-      - name: Fail if GCP auth not configured
-        if: ${{ !secrets.GCP_SA_KEY && (!secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || !secrets.GCP_SERVICE_ACCOUNT) }}
-        run: |
-          echo "::error::Configure either GCP_SA_KEY or both GCP_WORKLOAD_IDENTITY_PROVIDER and GCP_SERVICE_ACCOUNT secrets." && exit 1
+          # If you want to support WIF in the future, add these lines and document that only one method should be set at a time:
+          # workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          # service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
