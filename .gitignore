@@ -16,3 +16,4 @@ ingestion/__pycache__/
 minio/
 actions-runner/
 ci-sa-key.json
+.pytest_cache
