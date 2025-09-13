@@ -19,7 +19,7 @@ At a glance:
 
 ### Presentation
 
-[▶️ Watch on GitHub (with audio)](https://github.com/danhdanhtuan0308/RAGops/blob/main/images/presentation.mp4) · [⬇️ Download MP4](https://raw.githubusercontent.com/danhdanhtuan0308/RAGops/main/images/presentation.mp4)
+[▶️ Watch on GitHub (with audio)](https://github.com/danhdanhtuan0308/RAGops/blob/main/images/presentation_web.mp4)
 
 
 ## Data Pipeline (arXiv → GCS → BigQuery)
@@ -45,7 +45,7 @@ At a glance:
 
 ## Model Pipeline (Milvus, Cohere, OpenAI)
 - Vector DB: Milvus stores `text-embedding-3-small` vectors and metadata.
-- Retrieval: Milvus HNSW search for candidate documents.
+- Retrieval: Milvus HNSW search for candidate documents using Hybrid Search BM25 + Cosine.
 - Reranking: Cohere Rerank v3.0 for semantic ordering.
 - Answering: OpenAI GPT‑4.1 variants synthesize answers.
 - Evaluation: LLM‑as‑judge produces hallucination/truthfulness/accuracy/relevancy scores.
