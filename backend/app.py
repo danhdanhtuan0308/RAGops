@@ -45,6 +45,7 @@ except Exception:  # pragma: no cover
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s")
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi.responses import RedirectResponse
 from pymilvus import utility, Collection
 
 from rag_app import config  # side-effect: validates env vars on import
@@ -545,6 +546,11 @@ if _METRICS_ENABLED:
     @app.get("/metrics")
     async def metrics():  # pragma: no cover
         return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+@app.get("/")
+def root():
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/status")

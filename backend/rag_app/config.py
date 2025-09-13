@@ -14,6 +14,10 @@ if not COHERE_API_KEY:
 
 MILVUS_HOST = os.getenv("MILVUS_HOST", "localhost")
 MILVUS_PORT = os.getenv("MILVUS_PORT", "19530")
+# Optional hosted Milvus connection settings (e.g., Zilliz Cloud)
+MILVUS_URI = os.getenv("MILVUS_URI", "")  # e.g., https://xxxxx.zillizcloud.com:19530
+MILVUS_TOKEN = os.getenv("MILVUS_TOKEN", "")
+MILVUS_SECURE = os.getenv("MILVUS_SECURE", "true").lower() in ("1", "true", "yes")
 COLLECTION_NAME = os.getenv("MILVUS_COLLECTION", "research_papers")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
 DIMENSION = int(os.getenv("EMBEDDING_DIM", "1536"))

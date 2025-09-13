@@ -11,7 +11,7 @@ from pymilvus import connections, utility, Collection, CollectionSchema, FieldSc
 
 from .config import (
     MILVUS_HOST, MILVUS_PORT, COLLECTION_NAME, DIMENSION,
-    PROJECT_ID, DATASET_ID, TABLE_ID
+    PROJECT_ID, DATASET_ID, TABLE_ID, MILVUS_URI, MILVUS_TOKEN, MILVUS_SECURE
 )
 from .config import EMBED_BATCH_SIZE  # re-export if needed
 from .rag_embeddings import get_embeddings
@@ -25,8 +25,18 @@ def connect_to_milvus():
     retry_delay = 10
     for attempt in range(max_retries):
         try:
-            connections.connect(alias="default", host=MILVUS_HOST, port=MILVUS_PORT)
-            logger.info(f"Connected to Milvus server at {MILVUS_HOST}:{MILVUS_PORT}")
+            if MILVUS_URI:
+                # Hosted Milvus (e.g., Zilliz) via URI + token
+                connections.connect(
+                    alias="default",
+                    uri=MILVUS_URI,
+                    token=MILVUS_TOKEN or None,
+                    secure=MILVUS_SECURE,
+                )
+                logger.info(f"Connected to Milvus via URI {MILVUS_URI}")
+            else:
+                connections.connect(alias="default", host=MILVUS_HOST, port=MILVUS_PORT)
+                logger.info(f"Connected to Milvus server at {MILVUS_HOST}:{MILVUS_PORT}")
             return True
         except Exception as e:  # noqa
             logger.warning(f"Attempt {attempt+1}/{max_retries} to connect to Milvus failed: {e}")

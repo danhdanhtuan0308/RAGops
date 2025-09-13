@@ -16,7 +16,12 @@ co = cohere.Client(COHERE_API_KEY)
 
 
 def search_papers(query: str, top_k: int = 30) -> List[Dict[str, Any]]:
-    connect_to_milvus()
+    # Be resilient if Milvus is not reachable (e.g., Cloud Run without Milvus)
+    try:
+        connect_to_milvus()
+    except Exception as e:  # pragma: no cover
+        logger.warning(f"Milvus connect failed, skipping vector search: {e}")
+        return []
     # Ensure collection exists; if not, create (empty) so we can respond gracefully
     try:
         if not utility.has_collection(COLLECTION_NAME):
