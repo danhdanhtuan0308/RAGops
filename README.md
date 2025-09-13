@@ -19,7 +19,7 @@ At a glance:
 
 ### Presentation
 
-[▶️ Watch the presentation (inline with audio)](https://danhdanhtuan0308.github.io/RAGops/)
+[▶️ Watch on GitHub (with audio)](https://github.com/danhdanhtuan0308/RAGops/blob/main/images/presentation_web.mp4)
 
 
 ## Data Pipeline (arXiv → GCS → BigQuery)
