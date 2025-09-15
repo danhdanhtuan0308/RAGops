@@ -14,7 +14,7 @@ At a glance:
 - Model pipeline embeds/ingests into Milvus, retrieves + reranks (Cohere), then synthesizes an answer (OpenAI) with LLM‑as‑judge evaluation.
 - API is exposed via FastAPI (local or Cloud Run). Optional Redis provides semantic cache.
 - Logs/metrics flow to the observability stack.
-
+- URL Link to try out https://ragops-backend-642058528914.us-central1.run.app
 ---
 
 ### Presentation
