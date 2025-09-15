@@ -8,7 +8,7 @@ This repository contains a production‑oriented RAG stack: data ingestion from 
 
 ### Architecture
 ![Architecture](images/architecture.png)
-
+![Architecture](image.png)
 At a glance:
 - Data pipeline brings raw papers into Google Cloud Storage (data lake) and curates them into BigQuery (warehouse).
 - Model pipeline embeds/ingests into Milvus, retrieves + reranks (Cohere), then synthesizes an answer (OpenAI) with LLM‑as‑judge evaluation.
