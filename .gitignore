@@ -1,4 +1,0 @@
-.env
-./airflow/keys/*
-./airflow/logs/*
-./airflow/.env
